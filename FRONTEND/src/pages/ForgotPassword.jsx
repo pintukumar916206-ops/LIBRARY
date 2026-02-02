@@ -1,0 +1,119 @@
+import React, { useEffect, useState } from "react";
+import logo from "../assets/black-logo.png";
+import logo_with_title from "../assets/logo-with-title.png";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPassword, resetAuthSlice } from "../store/slices/authSlice";
+import { toast } from "react-toastify";
+import { Link, Navigate } from "react-router-dom";
+
+const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
+
+  const { isAuthenticated, user, error, message, loading } = useSelector(
+    (state) => state.auth,
+  );
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    dispatch(forgotPassword(email));
+  };
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch(resetAuthSlice());
+    }
+    if (error) {
+      toast.error(error);
+      dispatch(resetAuthSlice());
+    }
+  }, [dispatch, error, loading, isAuthenticated]);
+  if (isAuthenticated) {
+    return <Navigate to={"/"} />;
+  }
+  return (
+    <>
+      <div className="flex flex-col md:flex-row h-screen jusitfy-center">
+        {/* LEFT SIDE */}
+        <div
+          className="hidden w-full md:w-1/2 bg-black text-white 
+    md:flex flex-col items-center justify-center p-8
+    rounded-tr-[80px] rounded-br-[80px]"
+        >
+          <div className="text-center h-[450px]">
+            <div className="flex justify-center mb-12">
+              <img
+                src={logo_with_title}
+                alt="Logo"
+                className="mb-12 h-45 w-auto"
+              />
+            </div>
+            <h3
+              className="text-gray-300 mb-12 max-w-[320px]
+            text-3xl font-medium leading-10 mx-auto"
+            >
+              "Your destination for borrowing and reading books."
+            </h3>
+          </div>
+        </div>
+        {/* RIGHT SIDE */}
+        <div
+          className="w-full md:w-1/2 flex items-center 
+        justify-center bg-white p-8 relative"
+        >
+          <Link
+            to={"/login"}
+            className="border-2 border-black
+          rounded-3xl font-bold w-55 py-2 px-10 fixed top-10 -left-5
+          hover:bg-black hover:text-white transition 
+          duration-300 text-end"
+          >
+            BACK
+          </Link>
+          <div className="w-full max-w-sm ">
+            <div className="flex justify-center mb-12 ">
+              <div
+                className="rounded-full flex items-center 
+              justify-center"
+              >
+                <img src={logo} alt="Logo" className="h-24 w-auto" />
+              </div>
+            </div>
+            <h1
+              className="text-4xl font-medium text-center mb-5 
+            overflow-hidden"
+            >
+              Forgot Password
+            </h1>
+            <p className="text-gray-800 text-center mb-12">
+              Please enter your email.
+            </p>
+            <form onSubmit={handleForgotPassword}>
+              <div className="mb-4">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  className="w-full px-4 py-4 border border-black rounded-md
+                  focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="border mt-5 border-black w-full
+              font-semibold bg-black text-white py-4 
+              rounded-lg hover:bg-white hover:text-black transition"
+                disabled={loading ? true : false}
+              >
+                RESET PASSWORD
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default ForgotPassword;
