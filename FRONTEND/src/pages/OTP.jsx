@@ -61,12 +61,12 @@ const OTP = () => {
                 className="rounded-full flex items-center 
               justify-center  "
               >
-                <img src={logo} alt="Logo" className="h-24 w-auto" />
+                <img src={logo} alt="Logo" className="h-44 w-auto" />
               </div>
             </div>
             <h1
               className="text-4xl font-medium text-center 
-            mb-12 overflow-hidden"
+            mb-2 overflow-hidden"
             >
               Check Your Email
             </h1>
@@ -96,15 +96,21 @@ const OTP = () => {
           </div>
         </div>
         {/* RIGHT SIDE */}
-        <div className="hidden w-full md:w-1/2 bg-black text-white
+        <div
+          className="hidden w-full md:w-1/2 bg-black text-white
         md:flex flex-col items-center justify-center h-full p-8
-        rounded-tl-[80px] rounded-bl-[80px]">
+        rounded-tl-[80px] rounded-bl-[80px]"
+        >
           <div className="text-center h-[375px]">
             <div className="flex justify-center mb-11">
-              <img src={logo_with_title} alt="Logo" className="mb-12 h-44
-              w-auto" />
+              <img
+                src={logo_with_title}
+                alt="Logo"
+                className="mb-12 h-44
+              w-auto"
+              />
             </div>
-            <p className="text-gray-300 mb-11" >New to our platform? Sign Up.</p>
+            <p className="text-gray-300 mb-11">New to our platform? Sign Up.</p>
             <Link
               to={"/register"}
               className="border mt-5 border-white px-8 w-full

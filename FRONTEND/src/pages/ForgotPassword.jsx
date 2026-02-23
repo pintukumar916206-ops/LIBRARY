@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import logo from "../assets/black-logo.png";
-import logo_with_title from "../assets/logo-with-title.png";
+import logo from "../assets/LOGO_1.png";
+import logo_with_title from "../assets/LOGO_2.png";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword, resetAuthSlice } from "../store/slices/authSlice";
 import { toast } from "react-toastify";
@@ -44,7 +44,7 @@ const ForgotPassword = () => {
               <img
                 src={logo_with_title}
                 alt="Logo"
-                className="mb-12 h-45 w-auto"
+                className="mb-12 h-44 w-auto"
               />
             </div>
             <h3
@@ -75,11 +75,11 @@ const ForgotPassword = () => {
                 className="rounded-full flex items-center 
               justify-center"
               >
-                <img src={logo} alt="Logo" className="h-24 w-auto" />
+                <img src={logo} alt="Logo" className="h-44 w-auto" />
               </div>
             </div>
             <h1
-              className="text-4xl font-medium text-center mb-5 
+              className="text-4xl font-medium text-center mb-2 
             overflow-hidden"
             >
               Forgot Password
@@ -104,7 +104,7 @@ const ForgotPassword = () => {
                 className="border mt-5 border-black w-full
               font-semibold bg-black text-white py-4 
               rounded-lg hover:bg-white hover:text-black transition"
-                disabled={loading ? true : false}
+                disabled={loading}
               >
                 RESET PASSWORD
               </button>

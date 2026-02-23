@@ -107,19 +107,21 @@ const UserDashboard = () => {
     };
   }, [userBorrowedBooks]);
 
-  const chartData = useMemo(
-    () => ({
-      labels: ["Borrowed Books", "No. of Books"],
+  const chartData = useMemo(() => {
+    const totalBooks = allBooks?.length || 0;
+    const hasData = stats.borrowed > 0 || totalBooks > 0;
+    return {
+      labels: hasData ? ["Borrowed Books", "No. of Books"] : ["NO DATA"],
       datasets: [
         {
           label: "Books",
-          data: [stats.borrowed, allBooks?.length || 0],
-          backgroundColor: ["#3D3E3E", "#151619"],
+          data: hasData ? [stats.borrowed, totalBooks] : [1],
+          backgroundColor: hasData ? ["#3D3E3E", "#151619"] : ["#E5E7EB"],
+          borderWidth: hasData ? 1 : 0,
         },
       ],
-    }),
-    [stats.borrowed, allBooks],
-  );
+    };
+  }, [stats.borrowed, allBooks]);
 
   const filteredBooks = useMemo(() => {
     if (activeTab === "borrowed") {
@@ -155,7 +157,7 @@ const UserDashboard = () => {
               </h3>
               <div
                 className="w-full flex justify-center items-center 
-              flex-1 min-h-[200px]"
+              flex-1 min-h-[200px] relative h-[250px]"
               >
                 <Pie
                   data={chartData}

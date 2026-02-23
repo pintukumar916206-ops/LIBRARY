@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/LOGO_1.png";
 import logo_with_title from "../assets/LOGO_2.png";
-import { use } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { register, resetAuthSlice } from "../store/slices/authSlice";
@@ -55,7 +54,7 @@ const Register = () => {
               <img
                 src={logo_with_title}
                 alt="Logo"
-                className="mb-12 h-28 w-auto"
+                className="mb-12 h-44 w-auto"
               />
             </div>
             <p className="text-gray-300 mb-12">
@@ -77,7 +76,7 @@ const Register = () => {
         justify-center bg-white p-6 overflow-hidden"
         >
           <div className=" w-full max-w-sm ">
-            <div className=" flex justify-center mb-12 ">
+            <div className=" flex justify-center mb-2 ">
               <div
                 className=" flex flex-col-reverse sm:flex-row items-center
               justify-center gap-5"
@@ -88,8 +87,7 @@ const Register = () => {
                 <img
                   src={logo}
                   alt="logo"
-                  className="h-auto
-                w-24 object-cover  "
+                  className="h-44 w-auto object-cover"
                 />
               </div>
             </div>

@@ -38,19 +38,28 @@ const AdminDashboard = ({ setSelectedComponent }) => {
     };
   }, [users, books, allBorrowedBooks]);
 
-  const chartData = useMemo(
-    () => ({
-      labels: ["ACTIVE", "OVERDUE"],
+  const chartData = useMemo(() => {
+    const totalBooks = stats.totalBooks || 0;
+    const borrowedBooks = stats.totalBorrowedBooks || 0;
+
+    // Calculate derived categories
+    const available = Math.max(0, totalBooks - borrowedBooks);
+    const issued = borrowedBooks;
+
+    const hasData = totalBooks > 0 || borrowedBooks > 0;
+
+    return {
+      labels: hasData ? ["Available BOOK", "Issued BOOK"] : ["NO DATA"],
       datasets: [
         {
-          label: "Loans",
-          data: [stats.activeInsideDueDate, stats.overdue],
-          backgroundColor: ["#3D3E3E", "#151619"],
+          label: "Books",
+          data: hasData ? [available, issued] : [1],
+          backgroundColor: hasData ? ["#3D3E3E", "#151619"] : ["#f3f4f6"],
+          borderWidth: hasData ? 1 : 0,
         },
       ],
-    }),
-    [stats.activeInsideDueDate, stats.overdue],
-  );
+    };
+  }, [stats.totalBooks, stats.totalBorrowedBooks]);
 
   return (
     <>
@@ -107,7 +116,7 @@ const AdminDashboard = ({ setSelectedComponent }) => {
               </h3>
               <div
                 className="w-full flex justify-center items-center flex-1 
-              min-h-[200px]"
+              min-h-[200px] relative h-[250px]"
               >
                 <Pie
                   data={chartData}

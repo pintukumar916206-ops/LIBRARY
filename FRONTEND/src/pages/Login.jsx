@@ -52,12 +52,12 @@ const Login = () => {
                 className="rounded-full flex items-center 
               justify-center  "
               >
-                <img src={logo} alt="Logo" className="h-24 w-auto" />
+                <img src={logo} alt="Logo" className="h-44 w-auto" />
               </div>
             </div>
             <h1
               className="text-4xl font-medium text-center 
-            mb-12 overflow-hidden"
+            mb-2 overflow-hidden"
             >
               WELCOME BACK!
             </h1>
