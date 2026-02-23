@@ -8,14 +8,11 @@ const RecordBookPopup = () => {
   const { recordBookPopupData } = useSelector((state) => state.popup);
   const bookId = recordBookPopupData;
 
-  console.log("popup bookId:", bookId);
-
   const [email, setEmail] = useState("");
 
   const handleRecordBook = async (e) => {
     e.preventDefault();
     if (!bookId) {
-      console.error("bookId missing");
       return;
     }
     const resultAction = await dispatch(recordBorrowedBook({ email, bookId }));

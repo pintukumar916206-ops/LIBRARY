@@ -8,8 +8,6 @@ import { toast } from "react-toastify";
 import { resetAuthSlice } from "../store/slices/authSlice";
 
 const SettingPopup = () => {
-  console.log("SETTING POPUP RENDERED");
-
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");

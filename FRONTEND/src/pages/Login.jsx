@@ -42,20 +42,10 @@ const Login = () => {
         className="h-screen flex flex-col items-center justify-center
         md:flex-row "
       >
-        {/* LEFT SIDE */}
         <div
           className="w-full md:w-1/2 flex items-center justify-center 
         p-8 relative overflow-hidden"
         >
-          {/* <Link
-            to={"/register"}
-            className="border-2 border-black
-          rounded-3xl font-bold w-55 py-2 px-10 fixed top-10 -left-5
-          hover:bg-black hover:text-white transition 
-          duration-300 text-end"
-          >
-            BACK
-          </Link> */}
           <div className="max-w-sm w-full">
             <div className="flex justify-center mb-12">
               <div
@@ -90,7 +80,7 @@ const Login = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="PASSWORD"
+                  placeholder="Password"
                   className="w-full px-4 py-4 border border-black rounded-md
                   focus:outline-none"
                 />
@@ -124,7 +114,6 @@ const Login = () => {
             </form>
           </div>
         </div>
-        {/* RIGHT SIDE */}
         <div
           className="hidden w-full md:w-1/2 bg-black text-white
         md:flex flex-col items-center justify-center h-full p-8

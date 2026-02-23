@@ -25,15 +25,14 @@ import { fetchAllBooks } from "../store/slices/bookSlice";
 import Header from "../layout/Header";
 import { toast } from "react-toastify";
 
-// Assets
-import logo_with_title from "../assets/logo-with-title-black.png";
-import returnIcon from "../assets/redo.png";
 import browseIcon from "../assets/pointing.png";
 import bookIcon from "../assets/book-square.png";
 import background from "../assets/background.jpg";
 import avatarImage from "../assets/PINTU_KUMAR_.jpg";
-import logo from "../assets/black-logo.png";
+
 import { X } from "lucide-react";
+import { List } from "react-window";
+import { AutoSizer } from "react-virtualized-auto-sizer";
 
 ChartJS.register(
   CategoryScale,
@@ -65,7 +64,6 @@ const UserDashboard = () => {
     dispatch(fetchAllBooks());
   }, [dispatch]);
 
-  // Handle Toast Notifications
   useEffect(() => {
     if (borrowMessage) {
       toast.success(borrowMessage);
@@ -77,7 +75,6 @@ const UserDashboard = () => {
     }
   }, [borrowMessage, borrowError, dispatch]);
 
-  // Fetch all books when browsing
   useEffect(() => {
     if (activeTab === "browse") {
       dispatch(fetchAllBooks());
@@ -140,17 +137,16 @@ const UserDashboard = () => {
   return (
     <>
       <main
-        className="relative w-full p-6 pt-24 lg:pt-28 bg-[#f8f9fa] 
-      transition-all duration-300 font-sans h-screen flex flex-col overflow-hidden"
+        className="relative w-full p-4 pt-24 lg:pt-20 bg-[#f8f9fa] 
+      transition-all duration-300 font-sans h-auto min-h-screen xl:h-screen flex flex-col xl:overflow-hidden"
       >
         <Header />
 
-        {/* MAIN LAYOUT:*/}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-4 flex-1 min-h-0">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-2 flex-1 h-auto xl:min-h-0">
           {/* COLUMN 1: PIE CHART */}
           <div className="flex flex-col h-full">
             <div
-              className="bg-white p-5 rounded-2xl shadow-lg h-full flex 
+              className="bg-white p-4 rounded-2xl shadow-lg h-full flex 
                 flex-col justify-center items-center 
                 w-full border-2 border-gray-200"
             >
@@ -159,7 +155,7 @@ const UserDashboard = () => {
               </h3>
               <div
                 className="w-full flex justify-center items-center 
-              flex-1 min-h-[300px]"
+              flex-1 min-h-[200px]"
               >
                 <Pie
                   data={chartData}
@@ -167,7 +163,7 @@ const UserDashboard = () => {
                     cutout: 0,
                     maintainAspectRatio: false,
                   }}
-                  className="w-full max-h-[300px]"
+                  className="w-full max-h-[250px]"
                 />
               </div>
             </div>
@@ -252,7 +248,7 @@ const UserDashboard = () => {
               relative z-10"
               >
                 <div className="relative">
-                  <div className="p-1 bg-white rounded-full shadow-lg">
+                  <div className="p-1 bg-white rounded-full shadow-lg border-[3px] border-gray-200">
                     <img
                       src={user?.avatar?.url || avatarImage}
                       alt="avatar"
@@ -341,161 +337,162 @@ const UserDashboard = () => {
               </div>
 
               {/* MODAL BODY */}
-              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+              <div className="p-6 h-full flex-1 overflow-hidden">
                 {filteredBooks.length > 0 ? (
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr
-                        className="text-gray-400 text-xs uppercase tracking-wider 
-                      border-b border-gray-100"
-                      >
-                        <th className="pb-4 font-bold">Book Details</th>
-                        {activeTab !== "browse" && (
-                          <>
-                            <th className="pb-4 font-bold">Dates</th>
-                            <th className="pb-4 font-bold">Status</th>
-                          </>
-                        )}
-                        {activeTab === "browse" && (
-                          <th className="pb-4 font-bold">Availability</th>
-                        )}
-                        {activeTab !== "returned" && (
-                          <th className="pb-4 font-bold text-right">Action</th>
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody className="text-gray-600 text-sm">
-                      {filteredBooks.map((item) => {
-                        // Determine Data Structure based on Tab
-                        const title =
-                          activeTab === "browse"
-                            ? item.title
-                            : item.book?.title;
-                        const author =
-                          activeTab === "browse"
-                            ? item.author
-                            : item.book?.author;
+                  <div className="h-full w-full">
+                    {/* TABLE HEADER - STATIC */}
+                    <div className="w-full grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-gray-400 text-xs uppercase tracking-wider font-bold">
+                      <div className="col-span-5">Book Details</div>
+                      {activeTab !== "browse" && (
+                        <>
+                          <div className="col-span-4">Dates</div>
+                          <div className="col-span-2">Status</div>
+                          <div className="col-span-1 text-right">Action</div>
+                        </>
+                      )}
+                      {activeTab === "browse" && (
+                        <div className="col-span-5">Availability</div>
+                      )}
+                      {activeTab === "browse" && (
+                        <div className="col-span-2 text-right">Action</div>
+                      )}
+                    </div>
 
-                        const id = item._id;
-
-                        return (
-                          <tr
-                            key={id}
-                            className="border-b border-gray-50 hover:bg-gray-50 
-                            transition-colors group"
+                    {/* VIRTUALIZED ROWS */}
+                    <div className="flex-1 h-[calc(100%-40px)]">
+                      <AutoSizer>
+                        {({ height, width }) => (
+                          <List
+                            height={height}
+                            itemCount={filteredBooks.length}
+                            rowHeight={80}
+                            width={width}
+                            className="custom-scrollbar"
                           >
-                            <td className="py-4">
-                              <div className="flex items-center gap-4">
-                                <div>
-                                  <p
-                                    className="font-bold text-gray-800 
-                                  group-hover:text-black"
-                                  >
-                                    {title || "Unknown Title"}
-                                  </p>
-                                  <p className="text-xs text-gray-400">
-                                    {author || "Unknown Author"}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
+                            {({ index, style }) => {
+                              const item = filteredBooks[index];
+                              const title =
+                                activeTab === "browse"
+                                  ? item.title
+                                  : item.book?.title;
+                              const author =
+                                activeTab === "browse"
+                                  ? item.author
+                                  : item.book?.author;
+                              const id = item._id;
 
-                            {activeTab !== "browse" && (
-                              <td className="py-4">
-                                <div className="flex flex-col text-xs">
-                                  <span>
-                                    Out:{" "}
-                                    {new Date(
-                                      item.borrowedAt,
-                                    ).toLocaleDateString()}
-                                  </span>
-                                  {item.returned ? (
-                                    <span className="text-green-600">
-                                      In:{" "}
-                                      {new Date(
-                                        item.returnedAt,
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  ) : (
-                                    <span className="text-red-500">
-                                      Due:{" "}
-                                      {new Date(
-                                        item.dueDate,
-                                      ).toLocaleDateString()}
-                                    </span>
+                              return (
+                                <div
+                                  style={style}
+                                  className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group"
+                                >
+                                  <div className="col-span-5 py-4">
+                                    <div className="flex items-center gap-4">
+                                      <div>
+                                        <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4">
+                                          {title || "Unknown Title"}
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                          {author || "Unknown Author"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {activeTab !== "browse" && (
+                                    <>
+                                      <div className="col-span-4 py-4 text-xs flex flex-col justify-center">
+                                        <span>
+                                          Out:{" "}
+                                          {new Date(
+                                            item.borrowedAt,
+                                          ).toLocaleDateString()}
+                                        </span>
+                                        {item.returned ? (
+                                          <span className="text-green-600">
+                                            In:{" "}
+                                            {new Date(
+                                              item.returnedAt,
+                                            ).toLocaleDateString()}
+                                          </span>
+                                        ) : (
+                                          <span className="text-red-500">
+                                            Due:{" "}
+                                            {new Date(
+                                              item.dueDate,
+                                            ).toLocaleDateString()}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="col-span-2 py-4 flex items-center">
+                                        <span
+                                          className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                                            item.returned
+                                              ? "bg-green-100 text-green-800"
+                                              : new Date() >
+                                                  new Date(item.dueDate)
+                                                ? "bg-red-100 text-red-800"
+                                                : "bg-yellow-100 text-yellow-800"
+                                          }`}
+                                        >
+                                          {item.returned
+                                            ? "Completed"
+                                            : new Date() >
+                                                new Date(item.dueDate)
+                                              ? "Overdue"
+                                              : "Active"}
+                                        </span>
+                                      </div>
+                                    </>
                                   )}
+
+                                  {activeTab === "browse" && (
+                                    <div className="col-span-5 py-4 flex items-center">
+                                      <span
+                                        className={`font-bold ${item.quantity > 0 ? "text-green-600" : "text-red-500"}`}
+                                      >
+                                        {item.quantity > 0
+                                          ? `${item.quantity} Available`
+                                          : "Out of Stock"}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  <div
+                                    className={`py-4 flex items-center justify-end ${activeTab === "browse" ? "col-span-2" : "col-span-1"}`}
+                                  >
+                                    {activeTab === "borrowed" && (
+                                      <button
+                                        onClick={() => handleReturn(id)}
+                                        className="px-4 py-2 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-colors shadow-md active:scale-95"
+                                      >
+                                        RETURN
+                                      </button>
+                                    )}
+                                    {activeTab === "browse" && (
+                                      <button
+                                        onClick={() => handleHire(id)}
+                                        disabled={item.quantity <= 0}
+                                        className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors shadow-md active:scale-95 ${
+                                          item.quantity > 0
+                                            ? "bg-black text-white hover:bg-gray-800"
+                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                        }`}
+                                      >
+                                        {item.quantity > 0
+                                          ? "HIRE"
+                                          : "UNAVAILABLE"}
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
-                              </td>
-                            )}
-
-                            {activeTab !== "browse" && (
-                              <td className="py-4">
-                                <span
-                                  className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                                    item.returned
-                                      ? "bg-green-100 text-green-800"
-                                      : new Date() > new Date(item.dueDate)
-                                        ? "bg-red-100 text-red-800"
-                                        : "bg-yellow-100 text-yellow-800"
-                                  }`}
-                                >
-                                  {item.returned
-                                    ? "Completed"
-                                    : new Date() > new Date(item.dueDate)
-                                      ? "Overdue"
-                                      : "Active"}
-                                </span>
-                              </td>
-                            )}
-
-                            {activeTab === "browse" && (
-                              <td className="py-4">
-                                <span
-                                  className={`font-bold ${
-                                    item.quantity > 0
-                                      ? "text-green-600"
-                                      : "text-red-500"
-                                  }`}
-                                >
-                                  {item.quantity > 0
-                                    ? `${item.quantity} Available`
-                                    : "Out of Stock"}
-                                </span>
-                              </td>
-                            )}
-
-                            {/* ACTIONS */}
-                            <td className="py-4 text-right">
-                              {activeTab === "borrowed" && (
-                                <button
-                                  onClick={() => handleReturn(id)}
-                                  className="px-4 py-2 bg-black text-white text-xs
-                                  font-bold rounded-lg hover:bg-gray-800 transition-colors 
-                                  shadow-md active:scale-95"
-                                >
-                                  RETURN
-                                </button>
-                              )}
-
-                              {activeTab === "browse" && (
-                                <button
-                                  onClick={() => handleHire(id)}
-                                  disabled={item.quantity <= 0}
-                                  className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors shadow-md active:scale-95 ${
-                                    item.quantity > 0
-                                      ? "bg-black text-white hover:bg-gray-800"
-                                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                  }`}
-                                >
-                                  {item.quantity > 0 ? "HIRE" : "UNAVAILABLE"}
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              );
+                            }}
+                          </List>
+                        )}
+                      </AutoSizer>
+                    </div>
+                  </div>
                 ) : (
                   <div className="text-center py-20 flex flex-col items-center gap-4">
                     <div className="p-4 bg-gray-100 rounded-full">
@@ -517,8 +514,8 @@ const UserDashboard = () => {
 
         {/* QUOTE SECTION - FULL WIDTH BOTTOM */}
         <div
-          className="hidden xl:flex bg-white text-lg p-4 sm:text-xl 
-            xl:text-2xl min-h-0 h-32 font-semibold relative w-full
+          className="hidden xl:flex bg-white text-lg p-3 sm:text-xl 
+            xl:text-xl min-h-0 h-24 font-semibold relative w-full
             justify-center items-center rounded-2xl shadow-sm border-2 
             border-gray-200 flex-none"
         >
@@ -527,10 +524,10 @@ const UserDashboard = () => {
             reads lives only one."
           </h4>
           <p
-            className="text-gray-500 text-sm sm:text-lg absolute right-[35px] 
-              sm:right-[78px] bottom-[20px] font-bold"
+            className="text-gray-500 text-sm sm:text-base absolute right-[35px] 
+              sm:right-[78px] bottom-[15px] font-bold"
           >
-            ~ BOOKWORM TEAM
+            ~ Developed by NEXUS TEAM
           </p>
         </div>
       </main>

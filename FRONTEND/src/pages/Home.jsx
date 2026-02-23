@@ -28,9 +28,10 @@ const Home = () => {
     <>
       <div className="flex min-h-screen bg-gray-100">
         <div
-          className="md:hidden z-10 absolute top-4 right-6 
-        sm:top-6 flex items-center justify-center bg-black 
-        rounded-md h-9 w-9 text-white"
+          className="md:hidden z-[60] absolute top-[28px] 
+          right-[20px] 
+        flex items-center justify-center bg-black rounded-full
+        h-[55px] w-[55px] text-white"
         >
           <GiHamburgerMenu
             className="text-2xl"

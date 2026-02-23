@@ -6,9 +6,11 @@ import { getUser } from "./store/slices/authSlice";
 import { useEffect } from "react";
 import { fetchAllUsers } from "./store/slices/userSlice";
 import { fetchAllBooks } from "./store/slices/bookSlice";
-import { fetchAllBorrowedBooks, fetchMyBorrowedBooks } from "./store/slices/borrowSlice";
+import {
+  fetchAllBorrowedBooks,
+  fetchMyBorrowedBooks,
+} from "./store/slices/borrowSlice";
 
-// Lazy Load Pages
 const Home = React.lazy(() => import("./pages/Home"));
 const Login = React.lazy(() => import("./pages/Login"));
 const REGISTER = React.lazy(() => import("./pages/Register"));
@@ -27,13 +29,19 @@ const App = () => {
     }
     if (isAuthenticated && user?.role === "Admin") {
       dispatch(fetchAllUsers());
-      dispatch(fetchAllBorrowedBooks())
+      dispatch(fetchAllBorrowedBooks());
     }
   }, [isAuthenticated]);
 
   return (
     <Router>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center text-white">
+            Loading...
+          </div>
+        }
+      >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

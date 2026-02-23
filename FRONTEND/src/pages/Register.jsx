@@ -45,7 +45,6 @@ const Register = () => {
         className="flex flex-col md:flex-row 
       h-screen overflow-hidden"
       >
-        {/* LEFT SIDE */}
         <div
           className="hidden w-full md:w-1/2 bg-black text-white 
       md:flex flex-col items-center justify-center p-8 
@@ -73,7 +72,6 @@ const Register = () => {
             </Link>
           </div>
         </div>
-        {/* RIGHT SIDE */}
         <div
           className="w-full md:w-1/2 flex items-center 
         justify-center bg-white p-6 overflow-hidden"
@@ -104,7 +102,7 @@ const Register = () => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="FULL NAME"
+                  placeholder="Full Name"
                   className="w-full px-4 py-4 border border-black rounded-md
                   focus:outline-none"
                 />
@@ -124,7 +122,7 @@ const Register = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="PASSWORD"
+                  placeholder="Password"
                   className="w-full px-4 py-4 border border-black rounded-md
                   focus:outline-none"
                 />

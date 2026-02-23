@@ -48,8 +48,8 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, setSelectedComponent }) => {
   return (
     <>
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 bg-black text-white min-h-screen flex flex-col transform transition-transform duration-300
-      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:relative`}
+        className={`fixed top-0 left-0 z-[70] w-64 bg-black text-white min-h-screen flex flex-col transform transition-transform duration-300
+      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:relative overflow-y-auto custom-scrollbar`}
       >
         <div className="p-6 text-2xl font-bold border-b border-gray-700">
           <img src={logo_with_title} alt="logo" />
@@ -124,19 +124,11 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, setSelectedComponent }) => {
             <img src={logoutIcon} alt="icon" /> <span>Logout</span>
           </button>
         </div>
-        <img
-          src={closeIcon}
-          alt=""
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="h-fit w-fit absolute top-0 right-4 mt-4 block md:hidden"
-        />
       </aside>
       {addNewAdminPopup && <AddNewAdmin />}
       {settingPopup && <SettingPopup />}
     </>
   );
-  // }
-  // })
 };
 
 export default SideBar;
