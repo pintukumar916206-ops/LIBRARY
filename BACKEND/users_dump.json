@@ -1,0 +1,72 @@
+[
+  {
+    "_id": "6988ade5220044b100d3237b",
+    "name": "PINTU KUMAR",
+    "email": "pintukumar918833@gmail.com",
+    "password": "$2b$10$pUJq02FpwehYsNtj3Us/5.ndZbEzwBM1cCR5wYpEPI5rvdLhzsNO6",
+    "role": "User",
+    "accountVerified": true,
+    "borrowedBook": [
+      {
+        "bookId": "6988aa918c8f5d2a16800ad0",
+        "returned": true,
+        "bookTitle": "One Piece",
+        "borrowedDate": "2026-02-08T15:54:59.606Z",
+        "dueDate": "2026-02-16T00:00:00.000Z",
+        "_id": "6988b1d3a259c09c9f620700"
+      }
+    ],
+    "createdAt": "2026-02-08T15:38:13.626Z",
+    "updatedAt": "2026-02-23T11:59:42.924Z",
+    "__v": 1,
+    "verificationCode": null,
+    "verificationCodeExpire": null,
+    "resetPasswordExpire": "2026-02-23T12:14:42.924Z",
+    "resetPasswordToken": "92939a46f4578465125e80c06e51a22aa0f2cddf6a031e454a970e96a9dcfd07"
+  },
+  {
+    "_id": "6988b12aa259c09c9f6206ec",
+    "name": "PIN2 KUMAR",
+    "email": "pintukumar01@gmail.com",
+    "password": "$2b$10$2tb08XQFtpPBULXTRJmtZeSrP2Y6uFCXIA/OVRSlXJ8OiCOJnYkRK",
+    "role": "Admin",
+    "accountVerified": true,
+    "avatar": {
+      "url": "https://res.cloudinary.com/df23tdjp7/image/upload/v1770565929/ADMINS_AVATARS/ynxo2yckwm5dcgruebaj.jpg"
+    },
+    "borrowedBook": [],
+    "createdAt": "2026-02-08T15:52:10.745Z",
+    "updatedAt": "2026-02-08T15:52:10.745Z",
+    "__v": 0
+  },
+  {
+    "_id": "6988b2c1a259c09c9f620726",
+    "name": "LAV KUMAR",
+    "email": "lavphotoes@gmail.com",
+    "password": "$2b$10$eWocogpAM2HXHypUh6AL1eGTRgvcfcQGrJA1JCpkLD6foMdaeMGiy",
+    "role": "User",
+    "accountVerified": true,
+    "borrowedBook": [],
+    "createdAt": "2026-02-08T15:58:57.863Z",
+    "updatedAt": "2026-02-08T15:59:32.298Z",
+    "__v": 0,
+    "verificationCode": null,
+    "verificationCodeExpire": null
+  },
+  {
+    "_id": "6988b4cbf590e54b01480774",
+    "name": "Pintu Kumar",
+    "email": "pintukumar916206@gmail.com",
+    "password": "$2b$10$GP.4CfhEKslXBCzvGDayXeM4GRPxAHfiTMt593JVNm77XiJn6D5TO",
+    "role": "Admin",
+    "accountVerified": true,
+    "avatar": {
+      "public_Id": "admin_fix",
+      "url": "https://via.placeholder.com/150"
+    },
+    "borrowedBook": [],
+    "createdAt": "2026-02-08T16:07:39.119Z",
+    "updatedAt": "2026-02-08T16:07:39.119Z",
+    "__v": 0
+  }
+]
