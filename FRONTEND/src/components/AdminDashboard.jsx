@@ -49,7 +49,7 @@ const AdminDashboard = ({ setSelectedComponent }) => {
     const hasData = totalBooks > 0 || borrowedBooks > 0;
 
     return {
-      labels: hasData ? ["Available BOOK", "Issued BOOK"] : ["NO DATA"],
+      labels: hasData ? ["Available Books", "Issued Books"] : ["NO DATA"],
       datasets: [
         {
           label: "Books",

@@ -523,7 +523,7 @@ const UserDashboard = () => {
         >
           <h4 className="overflow-y-hidden text-center px-4 text-black">
             "A reader lives a thousand lives before he dies. The man who never
-            reads lives only one."
+            reads lives
           </h4>
           <p
             className="text-gray-500 text-sm sm:text-base absolute right-[35px] 
