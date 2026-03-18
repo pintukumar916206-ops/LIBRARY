@@ -53,7 +53,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
 
   const { user } = useSelector((state) => state.auth);
   const {
-    userBorrowedBooks,
+    userBorrowedBooks = [],
     error: borrowError,
     message: borrowMessage,
   } = useSelector((state) => state.borrow);
@@ -100,10 +100,10 @@ const UserDashboard = ({ setSelectedComponent }) => {
 
   // Derived Stats
   const stats = useMemo(() => {
-    const safeBooks = userBorrowedBooks || [];
+    const safeBooks = Array.isArray(userBorrowedBooks) ? userBorrowedBooks : [];
     return {
-      borrowed: safeBooks.filter((book) => book.returned === false).length,
-      returned: safeBooks.filter((book) => book.returned === true).length,
+      borrowed: safeBooks.filter((book) => !book.returned).length,
+      returned: safeBooks.filter((book) => !!book.returned).length,
     };
   }, [userBorrowedBooks]);
 
@@ -124,14 +124,15 @@ const UserDashboard = ({ setSelectedComponent }) => {
   }, [stats.borrowed, allBooks]);
 
   const filteredBooks = useMemo(() => {
+    const safeBooks = Array.isArray(userBorrowedBooks) ? userBorrowedBooks : [];
     if (activeTab === "borrowed") {
-      return userBorrowedBooks.filter((book) => book.returned === false);
+      return safeBooks.filter((book) => !book.returned);
     }
     if (activeTab === "returned") {
-      return userBorrowedBooks.filter((book) => book.returned === true);
+      return safeBooks.filter((book) => !!book.returned);
     }
     if (activeTab === "browse") {
-      return allBooks || [];
+      return Array.isArray(allBooks) ? allBooks : [];
     }
     return [];
   }, [activeTab, userBorrowedBooks, allBooks]);
@@ -343,7 +344,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
                 {filteredBooks.length > 0 ? (
                   <div className="w-full">
                     {/* TABLE HEADER - STATIC */}
-                    <div className="w-full grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-gray-400 text-[10px] uppercase tracking-wider font-bold sticky top-0 bg-white z-10">
+                    <div className="w-full grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-gray-400 text-[10px] uppercase tracking-wider font-bold sticky top-0 bg-white z-10 px-2">
                       <div className="col-span-5">Book Details</div>
                       {activeTab !== "browse" && (
                         <>
@@ -362,7 +363,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
 
                     {/* CONTENT AREA */}
                     {activeTab === "browse" ? (
-                      <div className="h-[500px] w-full">
+                      <div className="h-[500px] w-full mt-2">
                         <AutoSizer>
                           {({ height, width }) => (
                             <List
@@ -375,29 +376,40 @@ const UserDashboard = ({ setSelectedComponent }) => {
                               {({ index, style }) => {
                                 const item = filteredBooks[index];
                                 return (
-                                  <div style={style} className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group px-1">
+                                  <div
+                                    style={style}
+                                    className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group px-2"
+                                  >
                                     <div className="col-span-5 py-4">
-                                      <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4">
+                                      <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4 uppercase text-xs">
                                         {item.title}
                                       </p>
-                                      <p className="text-xs text-gray-400">
+                                      <p className="text-[10px] text-gray-400">
                                         {item.author}
                                       </p>
                                     </div>
                                     <div className="col-span-5 py-4 flex items-center">
-                                      <span className={`font-bold ${item.quantity > 0 ? "text-green-600" : "text-red-500"}`}>
-                                        {item.quantity > 0 ? `${item.quantity} Available` : "Out of Stock"}
+                                      <span
+                                        className={`font-bold text-xs ${item.quantity > 0 ? "text-green-600" : "text-red-500"}`}
+                                      >
+                                        {item.quantity > 0
+                                          ? `${item.quantity} Available`
+                                          : "Out of Stock"}
                                       </span>
                                     </div>
                                     <div className="col-span-2 py-4 flex items-center justify-end">
                                       <button
                                         onClick={() => handleHire(item._id)}
                                         disabled={item.quantity <= 0}
-                                        className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors shadow-md active:scale-95 ${
-                                          item.quantity > 0 ? "bg-black text-white hover:bg-gray-800" : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                        className={`px-4 py-2 text-[10px] font-bold rounded-lg transition-colors shadow-md active:scale-95 ${
+                                          item.quantity > 0
+                                            ? "bg-black text-white hover:bg-gray-800"
+                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                         }`}
                                       >
-                                        {item.quantity > 0 ? "HIRE" : "SOLD OUT"}
+                                        {item.quantity > 0
+                                          ? "HIRE"
+                                          : "SOLD OUT"}
                                       </button>
                                     </div>
                                   </div>
@@ -408,39 +420,46 @@ const UserDashboard = ({ setSelectedComponent }) => {
                         </AutoSizer>
                       </div>
                     ) : (
-                      <div className="flex flex-col">
+                      <div className="flex flex-col mt-2 max-h-[500px] overflow-y-auto custom-scrollbar">
                         {filteredBooks.map((item, index) => (
                           <div
                             key={item._id}
-                            className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group py-4"
+                            className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group py-4 px-2"
                           >
                             <div className="col-span-5">
-                              <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4">
+                              <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4 uppercase text-xs">
                                 {item.book?.title || "Unknown Title"}
                               </p>
-                              <p className="text-xs text-gray-400">
+                              <p className="text-[10px] text-gray-400 italic">
                                 {item.book?.author || "Unknown Author"}
                               </p>
                             </div>
 
-                            <div className="col-span-4 text-[10px] flex flex-col justify-center">
+                            <div className="col-span-4 text-[9px] flex flex-col justify-center">
                               <span className="text-gray-500">
-                                OUT: {new Date(item.borrowedAt).toLocaleDateString()}
+                                OUT:{" "}
+                                {new Date(item.borrowedAt).toLocaleDateString()}
                               </span>
                               {item.returned ? (
                                 <span className="text-green-600 font-bold">
-                                  IN: {new Date(item.returnedAt).toLocaleDateString()}
+                                  IN:{" "}
+                                  {new Date(
+                                    item.returnedAt,
+                                  ).toLocaleDateString()}
                                 </span>
                               ) : (
-                                <span className={`${new Date() > new Date(item.dueDate) ? "text-red-600" : "text-blue-600"} font-bold`}>
-                                  DUE: {new Date(item.dueDate).toLocaleDateString()}
+                                <span
+                                  className={`${new Date() > new Date(item.dueDate) ? "text-red-600" : "text-blue-600"} font-bold`}
+                                >
+                                  DUE:{" "}
+                                  {new Date(item.dueDate).toLocaleDateString()}
                                 </span>
                               )}
                             </div>
 
                             <div className="col-span-2 flex items-center">
                               <span
-                                className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wide ${
+                                className={`px-2 py-1 rounded-full text-[8px] font-bold uppercase tracking-wide ${
                                   item.returned
                                     ? "bg-green-100 text-green-800"
                                     : new Date() > new Date(item.dueDate)
@@ -480,9 +499,21 @@ const UserDashboard = ({ setSelectedComponent }) => {
                         className="w-12 h-12 opacity-20"
                       />
                     </div>
-                    <p className="text-gray-400 font-medium">
-                      No records found in this category.
+                    <p className="text-gray-500 font-bold text-sm">
+                      {activeTab === "borrowed"
+                        ? "You have no active loans at the moment."
+                        : activeTab === "returned"
+                          ? "You haven't returned any books yet."
+                          : "No books found in the catalog."}
                     </p>
+                    {activeTab === "borrowed" && (
+                      <button
+                        onClick={() => dispatch(fetchMyBorrowedBooks())}
+                        className="text-indigo-600 text-xs font-bold hover:underline"
+                      >
+                        REFRESH DATA
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
