@@ -124,17 +124,11 @@ const UserDashboard = ({ setSelectedComponent }) => {
   }, [stats.borrowed, allBooks]);
 
   const filteredBooks = useMemo(() => {
-    if (activeTab === "borrowed") {
-      return userBorrowedBooks.filter((book) => book.returned === false);
-    }
-    if (activeTab === "returned") {
-      return userBorrowedBooks.filter((book) => book.returned === true);
-    }
     if (activeTab === "browse") {
       return allBooks || [];
     }
     return [];
-  }, [activeTab, userBorrowedBooks, allBooks]);
+  }, [activeTab, allBooks]);
 
   return (
     <>
@@ -176,11 +170,10 @@ const UserDashboard = ({ setSelectedComponent }) => {
             {/* BORROWED BOOKS LIST ITEM */}
             <div
               onClick={() => setSelectedComponent("My Borrowed Books")}
-              className={`bg-white p-5 rounded-2xl shadow-sm border-2 
+              className="bg-white p-5 rounded-2xl shadow-sm border-2 
                 border-gray-200 hover:shadow-lg hover:border-black/10 
                 transition-all duration-300 group cursor-pointer flex 
-                items-center justify-between
-                ${activeTab === "borrowed" ? "ring-2 ring-black" : ""}`}
+                items-center justify-between"
             >
               <div className="flex items-center gap-4">
                 <div
@@ -324,11 +317,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
               items-center shrink-0"
               >
                 <h2 className="text-2xl font-bold uppercase tracking-widest">
-                  {activeTab === "borrowed"
-                    ? "Active Loans"
-                    : activeTab === "returned"
-                      ? "Reading History"
-                      : "Library Catalog"}
+                  Library Catalog
                 </h2>
                 <button
                   onClick={() => setActiveTab(null)}
