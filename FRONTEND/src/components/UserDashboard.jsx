@@ -339,11 +339,11 @@ const UserDashboard = ({ setSelectedComponent }) => {
               </div>
 
               {/* MODAL BODY */}
-              <div className="p-6 h-full flex-1 overflow-hidden">
+              <div className="p-6 h-full flex-1 overflow-y-auto custom-scrollbar">
                 {filteredBooks.length > 0 ? (
-                  <div className="h-full w-full">
+                  <div className="w-full">
                     {/* TABLE HEADER - STATIC */}
-                    <div className="w-full grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-gray-400 text-xs uppercase tracking-wider font-bold">
+                    <div className="w-full grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-gray-400 text-[10px] uppercase tracking-wider font-bold sticky top-0 bg-white z-10">
                       <div className="col-span-5">Book Details</div>
                       {activeTab !== "browse" && (
                         <>
@@ -360,140 +360,116 @@ const UserDashboard = ({ setSelectedComponent }) => {
                       )}
                     </div>
 
-                    {/* VIRTUALIZED ROWS */}
-                    <div className="flex-1 h-[calc(100%-40px)]">
-                      <AutoSizer>
-                        {({ height, width }) => (
-                          <List
-                            height={height}
-                            itemCount={filteredBooks.length}
-                            rowHeight={80}
-                            width={width}
-                            className="custom-scrollbar"
-                          >
-                            {({ index, style }) => {
-                              const item = filteredBooks[index];
-                              const title =
-                                activeTab === "browse"
-                                  ? item.title
-                                  : item.book?.title;
-                              const author =
-                                activeTab === "browse"
-                                  ? item.author
-                                  : item.book?.author;
-                              const id = item._id;
-
-                              return (
-                                <div
-                                  style={style}
-                                  className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group"
-                                >
-                                  <div className="col-span-5 py-4">
-                                    <div className="flex items-center gap-4">
-                                      <div>
-                                        <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4">
-                                          {title || "Unknown Title"}
-                                        </p>
-                                        <p className="text-xs text-gray-400">
-                                          {author || "Unknown Author"}
-                                        </p>
-                                      </div>
+                    {/* CONTENT AREA */}
+                    {activeTab === "browse" ? (
+                      <div className="h-[500px] w-full">
+                        <AutoSizer>
+                          {({ height, width }) => (
+                            <List
+                              height={height}
+                              itemCount={filteredBooks.length}
+                              rowHeight={80}
+                              width={width}
+                              className="custom-scrollbar"
+                            >
+                              {({ index, style }) => {
+                                const item = filteredBooks[index];
+                                return (
+                                  <div style={style} className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group px-1">
+                                    <div className="col-span-5 py-4">
+                                      <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4">
+                                        {item.title}
+                                      </p>
+                                      <p className="text-xs text-gray-400">
+                                        {item.author}
+                                      </p>
                                     </div>
-                                  </div>
-
-                                  {activeTab !== "browse" && (
-                                    <>
-                                      <div className="col-span-4 py-4 text-xs flex flex-col justify-center">
-                                        <span>
-                                          Out:{" "}
-                                          {new Date(
-                                            item.borrowedAt,
-                                          ).toLocaleDateString()}
-                                        </span>
-                                        {item.returned ? (
-                                          <span className="text-green-600">
-                                            In:{" "}
-                                            {new Date(
-                                              item.returnedAt,
-                                            ).toLocaleDateString()}
-                                          </span>
-                                        ) : (
-                                          <span className="text-red-500">
-                                            Due:{" "}
-                                            {new Date(
-                                              item.dueDate,
-                                            ).toLocaleDateString()}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <div className="col-span-2 py-4 flex items-center">
-                                        <span
-                                          className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${
-                                            item.returned
-                                              ? "bg-green-100 text-green-800"
-                                              : new Date() >
-                                                  new Date(item.dueDate)
-                                                ? "bg-red-100 text-red-800"
-                                                : "bg-yellow-100 text-yellow-800"
-                                          }`}
-                                        >
-                                          {item.returned
-                                            ? "Completed"
-                                            : new Date() >
-                                                new Date(item.dueDate)
-                                              ? "Overdue"
-                                              : "Active"}
-                                        </span>
-                                      </div>
-                                    </>
-                                  )}
-
-                                  {activeTab === "browse" && (
                                     <div className="col-span-5 py-4 flex items-center">
-                                      <span
-                                        className={`font-bold ${item.quantity > 0 ? "text-green-600" : "text-red-500"}`}
-                                      >
-                                        {item.quantity > 0
-                                          ? `${item.quantity} Available`
-                                          : "Out of Stock"}
+                                      <span className={`font-bold ${item.quantity > 0 ? "text-green-600" : "text-red-500"}`}>
+                                        {item.quantity > 0 ? `${item.quantity} Available` : "Out of Stock"}
                                       </span>
                                     </div>
-                                  )}
-
-                                  <div
-                                    className={`py-4 flex items-center justify-end ${activeTab === "browse" ? "col-span-2" : "col-span-1"}`}
-                                  >
-                                    {activeTab === "borrowed" && (
+                                    <div className="col-span-2 py-4 flex items-center justify-end">
                                       <button
-                                        onClick={() => handleReturn(id)}
-                                        className="px-4 py-2 bg-black text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-colors shadow-md active:scale-95"
-                                      >
-                                        RETURN
-                                      </button>
-                                    )}
-                                    {activeTab === "browse" && (
-                                      <button
-                                        onClick={() => handleHire(id)}
+                                        onClick={() => handleHire(item._id)}
                                         disabled={item.quantity <= 0}
                                         className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors shadow-md active:scale-95 ${
-                                          item.quantity > 0
-                                            ? "bg-black text-white hover:bg-gray-800"
-                                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                          item.quantity > 0 ? "bg-black text-white hover:bg-gray-800" : "bg-gray-200 text-gray-400 cursor-not-allowed"
                                         }`}
                                       >
-                                        {item.quantity > 0
-                                          ? "HIRE"
-                                          : "UNAVAILABLE"}
+                                        {item.quantity > 0 ? "HIRE" : "SOLD OUT"}
                                       </button>
-                                    )}
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }}
-                          </List>
-                        )}
-                      </AutoSizer>
-                    </div>
+                                );
+                              }}
+                            </List>
+                          )}
+                        </AutoSizer>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col">
+                        {filteredBooks.map((item, index) => (
+                          <div
+                            key={item._id}
+                            className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group py-4"
+                          >
+                            <div className="col-span-5">
+                              <p className="font-bold text-gray-800 group-hover:text-black truncate pr-4">
+                                {item.book?.title || "Unknown Title"}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {item.book?.author || "Unknown Author"}
+                              </p>
+                            </div>
+
+                            <div className="col-span-4 text-[10px] flex flex-col justify-center">
+                              <span className="text-gray-500">
+                                OUT: {new Date(item.borrowedAt).toLocaleDateString()}
+                              </span>
+                              {item.returned ? (
+                                <span className="text-green-600 font-bold">
+                                  IN: {new Date(item.returnedAt).toLocaleDateString()}
+                                </span>
+                              ) : (
+                                <span className={`${new Date() > new Date(item.dueDate) ? "text-red-600" : "text-blue-600"} font-bold`}>
+                                  DUE: {new Date(item.dueDate).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="col-span-2 flex items-center">
+                              <span
+                                className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wide ${
+                                  item.returned
+                                    ? "bg-green-100 text-green-800"
+                                    : new Date() > new Date(item.dueDate)
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
+                                {item.returned
+                                  ? "Returned"
+                                  : new Date() > new Date(item.dueDate)
+                                    ? "Overdue"
+                                    : "Active"}
+                              </span>
+                            </div>
+
+                            <div className="col-span-1 flex items-center justify-end">
+                              {!item.returned && (
+                                <button
+                                  onClick={() => handleReturn(item._id)}
+                                  className="px-3 py-1.5 bg-black text-white text-[10px] font-bold rounded shadow-md hover:bg-gray-800 transition-all active:scale-95"
+                                >
+                                  RETURN
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-20 flex flex-col items-center gap-4">
