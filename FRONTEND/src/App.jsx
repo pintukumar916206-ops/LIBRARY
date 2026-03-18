@@ -19,19 +19,29 @@ const OTP = React.lazy(() => import("./pages/OTP"));
 const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
 
 const App = () => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+
   useEffect(() => {
-    dispatch(getUser());
+    // Only fetch user if not already authenticated to avoid loops
+    if (!isAuthenticated) {
+      dispatch(getUser());
+    }
     dispatch(fetchAllBooks());
-    if (isAuthenticated && user?.role === "User") {
-      dispatch(fetchMyBorrowedBooks());
+  }, [dispatch]); // Initial check on mount
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "User") {
+        dispatch(fetchMyBorrowedBooks());
+      }
+      if (user?.role === "Admin") {
+        dispatch(fetchAllUsers());
+        dispatch(fetchAllBorrowedBooks());
+      }
     }
-    if (isAuthenticated && user?.role === "Admin") {
-      dispatch(fetchAllUsers());
-      dispatch(fetchAllBorrowedBooks());
-    }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.role, dispatch]);
 
   return (
     <Router>

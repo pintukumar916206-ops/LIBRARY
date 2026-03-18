@@ -25,13 +25,14 @@ const Login = () => {
   };
   useEffect(() => {
     if (message) {
+      toast.success(message);
       dispatch(resetAuthSlice());
     }
     if (error) {
       toast.error(error);
       dispatch(resetAuthSlice());
     }
-  }, [dispatch, error, loading, isAuthenticated]);
+  }, [dispatch, error, message]);
   if (isAuthenticated) {
     return <Navigate to={"/"} />;
   }
