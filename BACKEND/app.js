@@ -18,6 +18,9 @@ import { removeUnverifiedAccounts } from "./services/removeUnverifiedAccounts.js
 export const app = express();
 config({ path: "./config/config.env", quiet: true });
 
+// Enable trust proxy for secure cookies behind Render/Load Balancer
+app.set('trust proxy', 1);
+
 // Security Middleware
 app.use(helmet());
 
