@@ -26,7 +26,7 @@ const ForgotPassword = () => {
       toast.error(error);
       dispatch(resetAuthSlice());
     }
-  }, [dispatch, error, loading, isAuthenticated]);
+  }, [dispatch, error, message, loading, isAuthenticated]);
   if (isAuthenticated) {
     return <Navigate to={"/"} />;
   }

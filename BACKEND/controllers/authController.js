@@ -147,12 +147,12 @@ export const getUser = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findOne({
-    email: req.body.email,
-    accountVerified: true,
-  });
+  const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    return next(new ErrorHandler("User not found.", 400));
+    return next(new ErrorHandler("User not found.", 404));
+  }
+  if (!user.accountVerified) {
+    return next(new ErrorHandler("Account not verified. Please verify your email first.", 400));
   }
   const resetToken = user.getResetPasswordToken();
 
