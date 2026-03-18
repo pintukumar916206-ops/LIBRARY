@@ -3,6 +3,7 @@ import ErrorHandler from "../middleware/errorMiddleware.js";
 import { User } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 export const getAllUser = catchAsyncErrors(async (req, res, next) => {
   const users = await User.find({ accountVerified: true });
@@ -37,14 +38,26 @@ export const registerNewAdmin = catchAsyncErrors(async (req, res, next) => {
     );
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  const cloudinaryResponse = await cloudinary.uploader.upload(
-    avatar.tempFilePath,
-    {
-      folder: "ADMINS_AVATARS",
-      width: 150,
-      crop: "scale",
-    },
-  );
+  
+  let cloudinaryResponse;
+  try {
+    cloudinaryResponse = await cloudinary.uploader.upload(
+      avatar.tempFilePath,
+      {
+        folder: "ADMINS_AVATARS",
+        width: 150,
+        crop: "scale",
+      },
+    );
+  } catch (error) {
+    return next(new ErrorHandler("Avatar upload to Cloudinary failed", 500));
+  } finally {
+    // CRITICAL: Delete the temporary file to prevent disk leak
+    if (avatar.tempFilePath) {
+      fs.unlinkSync(avatar.tempFilePath);
+    }
+  }
+
   if (!cloudinaryResponse || !cloudinaryResponse.secure_url) {
     return next(new ErrorHandler("Avatar upload failed", 500));
   }
