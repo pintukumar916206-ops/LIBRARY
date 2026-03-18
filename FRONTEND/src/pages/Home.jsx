@@ -49,7 +49,7 @@ const Home = () => {
             switch (selectedComponent) {
               case "Dashboard":
                 return user?.role === "User" ? (
-                  <UserDashboard />
+                  <UserDashboard setSelectedComponent={setSelectedComponent} />
                 ) : (
                   <AdminDashboard setSelectedComponent={setSelectedComponent} />
                 );
@@ -89,7 +89,7 @@ const Home = () => {
                 return <MyBorrowedBooks />;
               default:
                 return user?.role === "User" ? (
-                  <UserDashboard />
+                  <UserDashboard setSelectedComponent={setSelectedComponent} />
                 ) : (
                   <AdminDashboard setSelectedComponent={setSelectedComponent} />
                 );

@@ -46,7 +46,7 @@ ChartJS.register(
   ArcElement,
 );
 
-const UserDashboard = () => {
+const UserDashboard = ({ setSelectedComponent }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(null);
@@ -175,7 +175,7 @@ const UserDashboard = () => {
           <div className="flex flex-col gap-4 h-full justify-center">
             {/* BORROWED BOOKS LIST ITEM */}
             <div
-              onClick={() => setActiveTab("borrowed")}
+              onClick={() => setSelectedComponent("My Borrowed Books")}
               className={`bg-white p-5 rounded-2xl shadow-sm border-2 
                 border-gray-200 hover:shadow-lg hover:border-black/10 
                 transition-all duration-300 group cursor-pointer flex 
