@@ -26,7 +26,7 @@ export const addNewAdmin = createAsyncThunk(
       });
       toast.success(response.data.message);
       dispatch(toggleAddNewAdminPopup());
-      return response.data.user; // Assuming backend returns the created user
+      return response.data.user; 
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to add admin");
       return rejectWithValue(error.response?.data?.message || "Failed to add admin");
@@ -64,7 +64,7 @@ const userSlice = createSlice({
       .addCase(addNewAdmin.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload) {
-             state.users.push(action.payload);
+            state.users.push(action.payload);
         }
       })
       .addCase(addNewAdmin.rejected, (state, action) => {

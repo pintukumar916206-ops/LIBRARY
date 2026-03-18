@@ -25,9 +25,7 @@ export const addBook = createAsyncThunk(
         "/bookandmanga/admin/add",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" }, // Ensure correct content type for files if needed, or application/json for raw data. Original used application/json but param name formData suggests multipart? Let's check original. Original used application/json.
-          // Correcting to application/json based on original code, unless formData implies actual FormData object.
-          // If the input is standard JSON object, use application/json.
+          headers: { "Content-Type": "multipart/form-data" }, 
         }
       );
       toast.success(response.data.message);

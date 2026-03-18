@@ -514,7 +514,7 @@ const UserDashboard = () => {
           </div>
         )}
 
-        {/* QUOTE SECTION - FULL WIDTH BOTTOM */}
+        {/* QUOTE SECTION */}
         <div
           className="hidden xl:flex bg-white text-lg p-3 sm:text-xl 
             xl:text-xl min-h-0 h-24 font-semibold relative w-full

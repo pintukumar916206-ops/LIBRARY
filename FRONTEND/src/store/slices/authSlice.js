@@ -116,7 +116,6 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.message = null;
-      // We don't reset user or isAuthenticated here, usually just status flags
     },
     clearError(state) {
         state.error = null;
