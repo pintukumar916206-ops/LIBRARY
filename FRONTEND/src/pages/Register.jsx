@@ -20,11 +20,7 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append("name", name);
-    data.append("email", email);
-    data.append("password", password);
-    dispatch(register(data));
+    dispatch(register({ name, email, password }));
   };
 
   useEffect(() => {
