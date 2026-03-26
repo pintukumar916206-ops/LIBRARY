@@ -25,15 +25,18 @@ const Register = () => {
   };
 
   useEffect(() => {
+    console.log("Current Auth State:", { message, error, isAuthenticated });
     if (message) {
+      console.log("Success message received, redirecting to OTP...");
       dispatch(resetAuthSlice());
       navigateTo(`/otp-verify/${email}`);
     }
     if (error) {
+      console.error("Registration failed with error:", error);
       toast.error(error);
       dispatch(resetAuthSlice());
     }
-  }, [dispatch, error, message]);
+  }, [dispatch, error, message, email, navigateTo, isAuthenticated]);
 
   if (isAuthenticated) {
     return <Navigate to="/" />;
