@@ -23,7 +23,7 @@ app.use(helmet());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000, // Increased from 100 to 1000 to prevent 429 during testing
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests from this IP. Please try again after 15 minutes.",
@@ -39,6 +39,7 @@ app.use(
       "http://localhost:5174",
       "http://localhost:5175",
       "https://library-frontend-r5qc.onrender.com",
+      "https://library-backend-0gki.onrender.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
