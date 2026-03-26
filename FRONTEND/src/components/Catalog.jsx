@@ -3,10 +3,7 @@ import { PiKeyReturnBold } from "react-icons/pi";
 import { FaSquareCheck } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleReturnBookPopup } from "../store/slices/popUpSlice";
-import {
-  fetchAllBorrowedBooks,
-  resetBorrowSlice,
-} from "../store/slices/borrowSlice";
+import { fetchAllBorrowedBooks, resetBorrowSlice } from "../store/slices/borrowSlice";
 import { toast } from "react-toastify";
 import { fetchAllBooks, resetBookSlice } from "../store/slices/bookSlice";
 import ReturnBookPopup from "../popups/ReturnBookPopup";
@@ -14,54 +11,34 @@ import Header from "../layout/Header";
 
 const Catalog = () => {
   const dispatch = useDispatch();
-
   const { returnBookPopup } = useSelector((state) => state.popup);
-  const { loading, error, message, allBorrowedBooks } = useSelector(
-    (state) => state.borrow,
-  );
-
+  const { loading, error, message, allBorrowedBooks } = useSelector((state) => state.borrow);
   const [filter, setFilter] = useState("borrowed");
+  const [email, setEmail] = useState("");
+  const [borrowedBookId, setBorrowedBookId] = useState("");
 
-  const formDateAndTime = (timeStamp) => {
-    const date = new Date(timeStamp);
-    const formattedDate = `${String(date.getDate()).padStart(2, "0")}-${String(
-      date.getMonth() + 1,
-    ).padStart(2, "0")}-${date.getFullYear()}`;
+  const formatDate = (dateString, includeTime = false) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const baseDate = `${day}-${month}-${year}`;
+    if (!includeTime) return baseDate;
 
-    const formattedTime = `${String(date.getHours()).padStart(2, "0")}:${String(
-      date.getMinutes(),
-    ).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-    const result = `${formattedDate}  ${formattedTime}`;
-    return result;
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${baseDate} ${hours}:${minutes}:${seconds}`;
   };
 
-  const formDate = (timeStamp) => {
-    const date = new Date(timeStamp);
-    return `${String(date.getDate()).padStart(2, "0")}-${String(
-      date.getMonth() + 1,
-    ).padStart(2, "0")}-${date.getFullYear()}`;
-  };
-
-  const currentDate = new Date();
-
-  const borrowedBooks = allBorrowedBooks?.filter((book) => {
-    const dueDate = new Date(book.dueDate);
-    return dueDate > currentDate;
-  });
-
-  const overdueBooks = allBorrowedBooks?.filter((book) => {
-    const dueDate = new Date(book.dueDate);
-    return dueDate <= currentDate;
-  });
-
+  const now = new Date();
+  const borrowedBooks = allBorrowedBooks?.filter((b) => !b.returnedAt && new Date(b.dueDate) > now);
+  const overdueBooks = allBorrowedBooks?.filter((b) => !b.returnedAt && new Date(b.dueDate) <= now);
   const booksToDisplay = filter === "borrowed" ? borrowedBooks : overdueBooks;
 
-  const [email, setEmail] = useState();
-  const [borrowedBookId, setBorrowedBookId] = useState();
-
-  const openReadBookPopup = (bookId, email) => {
+  const openReturnPopup = (bookId, userEmail) => {
     setBorrowedBookId(bookId);
-    setEmail(email);
+    setEmail(userEmail);
     dispatch(toggleReturnBookPopup());
   };
 
@@ -77,38 +54,29 @@ const Catalog = () => {
       toast.error(error);
       dispatch(resetBorrowSlice());
     }
-  }, [loading, error, dispatch]);
+  }, [message, error, dispatch]);
 
   return (
     <>
       <main className="relative flex-1 p-6 pt-28">
         <Header />
-        {/* SUB HEADER */}
-
-        <header
-          className="flex flex-col gap-3 sm:flex-row 
-          md:items-center"
-        >
+        <header className="flex flex-col gap-3 sm:flex-row md:items-center">
           <button
-            className={`relative rounded sm:rounded-tr-none 
-            sm:rounded-br-none sm:rounded-bl-lg sm:rounded-tl-lg text-center
-            border-2 font-semibold py-2 w-full sm:w-72 ${
+            className={`rounded-lg sm:rounded-r-none border-2 font-bold py-2 w-full sm:w-72 transition-all ${
               filter === "borrowed"
-                ? "bg-black text-white border-black "
-                : "bg-gray-200 text-black border-gray-200 hover:bg-gray-400 "
-            } `}
+                ? "bg-black text-white border-black"
+                : "bg-gray-100 text-gray-500 border-gray-100 hover:bg-gray-200"
+            }`}
             onClick={() => setFilter("borrowed")}
           >
-            BORROWED BOOKS
+            ACTIVE LOANS
           </button>
           <button
-            className={`relative rounded sm:rounded-tl-none 
-            sm:rounded-bl-none sm:rounded-br-lg sm:rounded-tr-lg text-center
-            border-2 font-semibold py-2 w-full sm:w-72 ${
+            className={`rounded-lg sm:rounded-l-none border-2 font-bold py-2 w-full sm:w-72 transition-all ${
               filter === "overdue"
-                ? "bg-black text-white border-black "
-                : "bg-gray-200 text-black border-gray-200 hover:bg-gray-400 "
-            } `}
+                ? "bg-black text-white border-black"
+                : "bg-gray-100 text-gray-500 border-gray-100 hover:bg-gray-200"
+            }`}
             onClick={() => setFilter("overdue")}
           >
             OVERDUE BOOKS
@@ -116,49 +84,42 @@ const Catalog = () => {
         </header>
 
         {Array.isArray(booksToDisplay) && booksToDisplay.length > 0 ? (
-          <div
-            className="mt-6 overflow-auto bg-white rounded-md
-                shadow:lg"
-          >
-            <table className="min-w-full border-collapse">
+          <div className="mt-8 overflow-hidden bg-white rounded-xl shadow-sm border border-gray-200">
+            <table className="min-w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-300">
-                  <th className="px-4 py-3 text-left">ID</th>
-                  <th className="px-4 py-3 text-left">USERNAME</th>
-                  <th className="px-4 py-3 text-left">EMAIL</th>
-                  <th className="px-4 py-3 text-left">PRICE</th>
-                  <th className="px-4 py-3 text-left">DUE - DATE</th>
-                  <th className="px-4 py-3 text-left">DATE & TIME</th>
-                  <th className="px-4 py-3 text-left">RETURN</th>
+                <tr className="bg-gray-50 text-gray-400 uppercase text-[10px] tracking-widest font-bold border-b border-gray-100">
+                  <th className="px-6 py-4 text-left">#</th>
+                  <th className="px-6 py-4 text-left">User</th>
+                  <th className="px-6 py-4 text-left">Email</th>
+                  <th className="px-6 py-4 text-left">Price</th>
+                  <th className="px-6 py-4 text-left">Due Date</th>
+                  <th className="px-6 py-4 text-left">Borrowed At</th>
+                  <th className="px-6 py-4 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody className="bg-white">
+              <tbody className="divide-y divide-gray-50">
                 {booksToDisplay.map((book, index) => (
-                  <tr
-                    key={book._id}
-                    className={(index + 1) % 2 === 0 ? "bg-gray-200" : ""}
-                  >
-                    <td className="px-4 py-3">{index + 1}</td>
-                    <td className="px-4 py-3">{book?.user?.name || "-"}</td>
-                    <td className="px-4 py-3">{book?.user?.email || "-"}</td>
-                    <td className="px-4 py-3">
-                      {book.price ?? book.book?.price ?? "-"}
-                    </td>
-                    <td className="px-4 py-3">{formDate(book.dueDate)}</td>
-                    <td className="px-4 py-3">
-                      {formDateAndTime(book.createdAt)}
-                    </td>
-                    <td className="px-4 py-3 flex space-x-2 justify-center items-center">
-                      {book.returnedAt ? (
-                        <FaSquareCheck className="w-6 h-6" />
-                      ) : (
-                        <PiKeyReturnBold
-                          onClick={() =>
-                            openReadBookPopup(book._id, book.user?.email)
-                          }
-                          className="w-6 h-6"
-                        />
-                      )}
+                  <tr key={book._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-gray-400">{index + 1}</td>
+                    <td className="px-6 py-4 font-bold text-gray-800">{book?.user?.name || "-"}</td>
+                    <td className="px-6 py-4 text-gray-500">{book?.user?.email || "-"}</td>
+                    <td className="px-6 py-4 font-black">₹{book.price ?? book.book?.price ?? "-"}</td>
+                    <td className="px-6 py-4 text-red-600 font-bold">{formatDate(book.dueDate)}</td>
+                    <td className="px-6 py-4 text-gray-400">{formatDate(book.createdAt, true)}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center">
+                        {book.returnedAt ? (
+                          <FaSquareCheck className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <button
+                            onClick={() => openReturnPopup(book._id, book.user?.email)}
+                            className="p-2 bg-gray-100 hover:bg-black hover:text-white rounded-full transition-all"
+                            title="Return Book"
+                          >
+                            <PiKeyReturnBold className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -166,12 +127,14 @@ const Catalog = () => {
             </table>
           </div>
         ) : (
-          <h3 className="text-3xl mt-5 font-medium">
-            NO {filter === "borrowed" ? "BORROWED" : "OVERDUE"} BOOKS FOUND.
-          </h3>
+          <div className="mt-20 text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+            <h3 className="text-xl font-bold text-gray-400 uppercase tracking-widest">
+              No {filter} books recorded
+            </h3>
+          </div>
         )}
       </main>
-      {returnBookPopup && <ReturnBookPopup borrowId={borrowedBookId} email={email}/>}
+      {returnBookPopup && <ReturnBookPopup borrowId={borrowedBookId} email={email} />}
     </>
   );
 };

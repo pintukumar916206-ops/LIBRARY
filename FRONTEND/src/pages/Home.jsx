@@ -12,7 +12,7 @@ import MyBorrowedBooks from "../components/MyBorrowedBooks";
 
 const Home = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedComponent, setSelectedComponent] = useState(" ");
+  const [selectedComponent, setSelectedComponent] = useState("");
 
   const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
 
@@ -21,18 +21,46 @@ const Home = () => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={"/login"} />;
+    return <Navigate to="/login" />;
   }
+
+  const renderContent = () => {
+    switch (selectedComponent) {
+      case "Dashboard":
+        return user?.role === "User" ? (
+          <UserDashboard setSelectedComponent={setSelectedComponent} />
+        ) : (
+          <AdminDashboard setSelectedComponent={setSelectedComponent} />
+        );
+      case "Books":
+        return <BookandMangaManagement />;
+      case "Catalog":
+        return user.role === "Admin" ? <Catalog /> : null;
+      case "Users":
+        return user.role === "Admin" ? <Users filterMode="all" /> : null;
+      case "Admins":
+        return user.role === "Admin" ? <Users filterMode="admin" /> : null;
+      case "ActiveLoans":
+        return user.role === "Admin" ? <Users filterMode="active_loans" /> : null;
+      case "OverdueLoans":
+        return user.role === "Admin" ? <Users filterMode="overdue_loans" /> : null;
+      case "CompletedLoans":
+        return user.role === "Admin" ? <Users filterMode="completed_loans" /> : null;
+      case "My Borrowed Books":
+        return <MyBorrowedBooks />;
+      default:
+        return user?.role === "User" ? (
+          <UserDashboard setSelectedComponent={setSelectedComponent} />
+        ) : (
+          <AdminDashboard setSelectedComponent={setSelectedComponent} />
+        );
+    }
+  };
 
   return (
     <>
       <div className="flex min-h-screen bg-gray-100">
-        <div
-          className="md:hidden z-[60] absolute top-[28px] 
-          right-[20px] 
-        flex items-center justify-center bg-black rounded-full
-        h-[55px] w-[55px] text-white"
-        >
+        <div className="md:hidden z-[60] absolute top-[28px] right-[20px] flex items-center justify-center bg-black rounded-full h-[55px] w-[55px] text-white">
           <GiHamburgerMenu
             className="text-2xl"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -43,59 +71,7 @@ const Home = () => {
           setIsSidebarOpen={setIsSidebarOpen}
           setSelectedComponent={setSelectedComponent}
         />
-
-        <div className="flex-1 p-6 ">
-          {(() => {
-            switch (selectedComponent) {
-              case "Dashboard":
-                return user?.role === "User" ? (
-                  <UserDashboard setSelectedComponent={setSelectedComponent} />
-                ) : (
-                  <AdminDashboard setSelectedComponent={setSelectedComponent} />
-                );
-              case "Books":
-                return <BookandMangaManagement />;
-              case "Catalog":
-                if (user.role === "Admin") {
-                  return <Catalog />;
-                }
-                break;
-              case "Users":
-                if (user.role === "Admin") {
-                  return <Users filterMode="all" />;
-                }
-                break;
-              case "Admins":
-                if (user.role === "Admin") {
-                  return <Users filterMode="admin" />;
-                }
-                break;
-              case "ActiveLoans":
-                if (user.role === "Admin") {
-                  return <Users filterMode="active_loans" />;
-                }
-                break;
-              case "OverdueLoans":
-                if (user.role === "Admin") {
-                  return <Users filterMode="overdue_loans" />;
-                }
-                break;
-              case "CompletedLoans":
-                if (user.role === "Admin") {
-                  return <Users filterMode="completed_loans" />;
-                }
-                break;
-              case "My Borrowed Books":
-                return <MyBorrowedBooks />;
-              default:
-                return user?.role === "User" ? (
-                  <UserDashboard setSelectedComponent={setSelectedComponent} />
-                ) : (
-                  <AdminDashboard setSelectedComponent={setSelectedComponent} />
-                );
-            }
-          })()}
-        </div>
+        <div className="flex-1 p-6">{renderContent()}</div>
       </div>
     </>
   );

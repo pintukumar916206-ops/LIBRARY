@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 
-// Thunks using createAsyncThunk
 export const register = createAsyncThunk(
   "auth/register",
   async (data, { rejectWithValue }) => {
@@ -9,7 +8,7 @@ export const register = createAsyncThunk(
       const response = await axiosInstance.post("/auth/register", data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Registration failed");
+      return rejectWithValue(error.response?.data?.message || "Registration failed.");
     }
   }
 );
@@ -21,7 +20,7 @@ export const otpVerification = createAsyncThunk(
       const response = await axiosInstance.post("/auth/verify-otp", { email, otp });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "OTP verification failed");
+      return rejectWithValue(error.response?.data?.message || "OTP verification failed.");
     }
   }
 );
@@ -33,7 +32,7 @@ export const login = createAsyncThunk(
       const response = await axiosInstance.post("/auth/login", data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+      return rejectWithValue(error.response?.data?.message || "Login failed.");
     }
   }
 );
@@ -45,7 +44,7 @@ export const logout = createAsyncThunk(
       const response = await axiosInstance.get("/auth/logout");
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Logout failed");
+      return rejectWithValue(error.response?.data?.message || "Logout failed.");
     }
   }
 );
@@ -57,11 +56,10 @@ export const getUser = createAsyncThunk(
       const response = await axiosInstance.get("/auth/me");
       return response.data;
     } catch (error) {
-      // 401 Unauthorized is expected when not logged in, just start clean
       if (error.response?.status === 401) {
-          return rejectWithValue(null);
+        return rejectWithValue(null);
       }
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch user");
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch user.");
     }
   }
 );
@@ -73,7 +71,7 @@ export const forgotPassword = createAsyncThunk(
       const response = await axiosInstance.post("/auth/forgot-password", { email });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Failed to send forgot password email");
+      return rejectWithValue(error.response?.data?.message || "Failed to send reset email.");
     }
   }
 );
@@ -85,7 +83,7 @@ export const resetPassword = createAsyncThunk(
       const response = await axiosInstance.put(`/auth/reset-password/${token}`, data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Reset password failed");
+      return rejectWithValue(error.response?.data?.message || "Password reset failed.");
     }
   }
 );
@@ -97,7 +95,21 @@ export const updatePassword = createAsyncThunk(
       const response = await axiosInstance.put("/auth/password/update", data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Update password failed");
+      return rejectWithValue(error.response?.data?.message || "Password update failed.");
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  "auth/updateProfile",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put("/auth/update-profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Profile update failed.");
     }
   }
 );
@@ -117,16 +129,9 @@ const authSlice = createSlice({
       state.error = null;
       state.message = null;
     },
-    clearError(state) {
-        state.error = null;
-    },
-    clearMessage(state) {
-        state.message = null;
-    }
   },
   extraReducers: (builder) => {
     builder
-      // REGISTER
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -141,7 +146,6 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // OTP VERIFICATION
       .addCase(otpVerification.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -158,7 +162,6 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // LOGIN
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -175,24 +178,22 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // LOGOUT
       .addCase(logout.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.message = null;
       })
-      .addCase(logout.fulfilled, (state, action) => {
+      .addCase(logout.fulfilled, (state) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
-        state.message = action.payload.message;
+        state.message = null;
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // GET USER
       .addCase(getUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -202,15 +203,12 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
       })
-      .addCase(getUser.rejected, (state, action) => {
+      .addCase(getUser.rejected, (state) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
-        // Don't set global error for getUser failure (silent auth check)
-        // unless it's critical, but typically we just clear session
       })
 
-      // FORGOT PASSWORD
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -218,14 +216,13 @@ const authSlice = createSlice({
       })
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.loading = false;
-        state.message = action.payload.message; // Ensure backend returns { message: "..." }
+        state.message = action.payload.message;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // RESET PASSWORD
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -234,14 +231,12 @@ const authSlice = createSlice({
       .addCase(resetPassword.fulfilled, (state, action) => {
         state.loading = false;
         state.message = action.payload.message;
-        // Depending on flow, auto-login or ask to login
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // UPDATE PASSWORD
       .addCase(updatePassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -254,10 +249,25 @@ const authSlice = createSlice({
       .addCase(updatePassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.message = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.message = action.payload.message;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { resetAuthSlice, clearError, clearMessage } = authSlice.actions;
+export const { resetAuthSlice } = authSlice.actions;
 
 export default authSlice.reducer;

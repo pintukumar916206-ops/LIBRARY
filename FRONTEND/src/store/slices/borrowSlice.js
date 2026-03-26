@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
-import { toggleRecordBookPopup } from "./popUpSlice";
 
-// Thunks
 export const fetchMyBorrowedBooks = createAsyncThunk(
   "borrow/fetchMyBorrowedBooks",
   async (_, { rejectWithValue }) => {
@@ -10,9 +8,7 @@ export const fetchMyBorrowedBooks = createAsyncThunk(
       const response = await axiosInstance.get("/borrow/my-borrowed-books");
       return response.data.borrowedBooks;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Something went wrong"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch borrowed books.");
     }
   }
 );
@@ -21,21 +17,17 @@ export const fetchAllBorrowedBooks = createAsyncThunk(
   "borrow/fetchAllBorrowedBooks",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        "/borrow/borrowed-books-by-users"
-      );
+      const response = await axiosInstance.get("/borrow/borrowed-books-by-users");
       return response.data.borrowBook;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Something went wrong"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch all borrowed books.");
     }
   }
 );
 
 export const recordBorrowedBook = createAsyncThunk(
   "borrow/recordBorrowedBook",
-  async ({ email, bookId, dueDate }, { rejectWithValue, dispatch }) => {
+  async ({ email, bookId, dueDate }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post(
         `/borrow/record-borrow-book/${bookId}`,
@@ -43,9 +35,7 @@ export const recordBorrowedBook = createAsyncThunk(
       );
       return response.data.message;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Something went wrong"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to record borrow.");
     }
   }
 );
@@ -54,14 +44,10 @@ export const returnBorrowedBook = createAsyncThunk(
   "borrow/returnBorrowedBook",
   async ({ email, bookId }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/borrow/return/${bookId}`, {
-        email,
-      });
+      const response = await axiosInstance.put(`/borrow/return/${bookId}`, { email });
       return response.data.message;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Something went wrong"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to return book.");
     }
   }
 );
@@ -84,7 +70,6 @@ const borrowSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // FETCH USER BORROWED BOOKS
       .addCase(fetchMyBorrowedBooks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -99,7 +84,6 @@ const borrowSlice = createSlice({
         state.error = action.payload;
       })
 
-      // FETCH ALL BORROWED BOOKS (ADMIN)
       .addCase(fetchAllBorrowedBooks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -113,7 +97,6 @@ const borrowSlice = createSlice({
         state.error = action.payload;
       })
 
-      // RECORD BOOK
       .addCase(recordBorrowedBook.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -128,7 +111,6 @@ const borrowSlice = createSlice({
         state.error = action.payload;
       })
 
-      // RETURN BOOK
       .addCase(returnBorrowedBook.pending, (state) => {
         state.loading = true;
         state.error = null;

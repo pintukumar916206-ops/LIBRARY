@@ -1,47 +1,47 @@
-import React, { Suspense } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/slices/authSlice";
-import { useEffect } from "react";
 import { fetchAllUsers } from "./store/slices/userSlice";
 import { fetchAllBooks } from "./store/slices/bookSlice";
-import {
-  fetchAllBorrowedBooks,
-  fetchMyBorrowedBooks,
-} from "./store/slices/borrowSlice";
+import { fetchAllBorrowedBooks, fetchMyBorrowedBooks } from "./store/slices/borrowSlice";
+import { Suspense, lazy } from "react";
 
-const Home = React.lazy(() => import("./pages/Home"));
-const Login = React.lazy(() => import("./pages/Login"));
-const REGISTER = React.lazy(() => import("./pages/Register"));
-const ForgotPassword = React.lazy(() => import("./pages/ForgotPassword"));
-const OTP = React.lazy(() => import("./pages/OTP"));
-const ResetPassword = React.lazy(() => import("./pages/ResetPassword"));
+const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const OTP = lazy(() => import("./pages/OTP"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const App = () => {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+  const { isAuthenticated, user, loading: authLoading } = useSelector((state) => state.auth);
+  const { books } = useSelector((state) => state.book);
+  const { userBorrowedBooks, allBorrowedBooks } = useSelector((state) => state.borrow);
+  const { users } = useSelector((state) => state.user);
 
   useEffect(() => {
-    // Only fetch user if not already authenticated to avoid loops
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !authLoading) {
       dispatch(getUser());
     }
-    dispatch(fetchAllBooks());
-  }, [dispatch]); // Initial check on mount
+    if (books.length === 0) {
+      dispatch(fetchAllBooks());
+    }
+  }, [dispatch, isAuthenticated, authLoading, books.length]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      if (user?.role === "User") {
+    if (isAuthenticated && user) {
+      if (user.role === "User" && userBorrowedBooks.length === 0) {
         dispatch(fetchMyBorrowedBooks());
       }
-      if (user?.role === "Admin") {
-        dispatch(fetchAllUsers());
-        dispatch(fetchAllBorrowedBooks());
+      if (user.role === "Admin") {
+        if (users.length === 0) dispatch(fetchAllUsers());
+        if (allBorrowedBooks.length === 0) dispatch(fetchAllBorrowedBooks());
       }
     }
-  }, [isAuthenticated, user?.role, dispatch]);
+  }, [isAuthenticated, user, userBorrowedBooks.length, users.length, allBorrowedBooks.length, dispatch]);
 
   return (
     <Router>
@@ -55,7 +55,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<REGISTER />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/password/forgot" element={<ForgotPassword />} />
           <Route path="/otp-verify/:email" element={<OTP />} />
           <Route path="/password/reset/:token" element={<ResetPassword />} />

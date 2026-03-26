@@ -1,6 +1,7 @@
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -40,7 +41,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     avatar: {
-      public_Id: String,
+      public_id: String,
       url: String,
     },
     verificationCode: Number,
@@ -54,17 +55,12 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.methods.generateVerificationCode = function () {
-  function generateRandomFiveDigitNumber() {
-    const firstDigit = Math.floor(Math.random() * 9) + 1;
-    const remainingDigits = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, 0);
-    return parseInt(firstDigit + remainingDigits);
-  }
-  const verificationCode = generateRandomFiveDigitNumber();
-  this.verificationCode = verificationCode;
+  const firstDigit = Math.floor(Math.random() * 9) + 1;
+  const remaining = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+  const code = parseInt(`${firstDigit}${remaining}`);
+  this.verificationCode = code;
   this.verificationCodeExpire = Date.now() + 10 * 60 * 1000;
-  return verificationCode;
+  return code;
 };
 
 userSchema.methods.generateToken = function () {
@@ -79,8 +75,8 @@ userSchema.methods.getResetPasswordToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-    this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
-    return resetToken;
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+  return resetToken;
 };
 
 export const User = mongoose.model("User", userSchema);

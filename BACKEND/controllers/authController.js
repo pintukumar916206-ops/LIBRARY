@@ -1,126 +1,96 @@
+import { v2 as cloudinary } from "cloudinary";
 import ErrorHandler from "../middleware/errorMiddleware.js";
 import { User } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { sendVerificationCode } from "../utils/sendVerificationCode.js";
 import { catchAsyncErrors } from "../middleware/catchAsyncErrors.js";
-import { create } from "domain";
 import { sendToken } from "../utils/sendToken.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { generatePasswordResetEmailTemplate } from "../utils/emailTemplates.js";
 
+const MIN_PASSWORD_LENGTH = 6;
+const MAX_PASSWORD_LENGTH = 15;
+
+function validatePassword(password) {
+  return password.length >= MIN_PASSWORD_LENGTH && password.length <= MAX_PASSWORD_LENGTH;
+}
+
 export const register = catchAsyncErrors(async (req, res, next) => {
-  try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return next(new ErrorHandler("Please provide all required fields.", 400));
-    }
-    const isRegistered = await User.findOne({ email, accountVerified: true });
-    if (isRegistered) {
-      return next(
-        new ErrorHandler("User already registered. Please login.", 400),
-      );
-    }
-    const registationAttemptsByUser = await User.countDocuments({
-      email,
-      accountVerified: false,
-    });
-    if (registationAttemptsByUser >= 5) {
-      return next(
-        new ErrorHandler(
-          "Maximum registration attempts exceeded. Please contact support.",
-          400,
-        ),
-      );
-    }
-    if (password.length < 8 || password.length > 16) {
-      return next(
-        new ErrorHandler("Password must be between 8 and 16 characters.", 400),
-      );
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-    const verificationCode = await user.generateVerificationCode();
-    await user.save();
-    sendVerificationCode(verificationCode, email, res);
-  } catch (error) {
-    next(error);
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return next(new ErrorHandler("Please provide all required fields.", 400));
   }
+  if (!validatePassword(password)) {
+    return next(new ErrorHandler("Password must be between 6 and 15 characters.", 400));
+  }
+  const isRegistered = await User.findOne({ email, accountVerified: true });
+  if (isRegistered) {
+    return next(new ErrorHandler("User already registered. Please log in.", 400));
+  }
+  const registrationAttempts = await User.countDocuments({
+    email,
+    accountVerified: false,
+  });
+  if (registrationAttempts >= 5) {
+    return next(
+      new ErrorHandler("Too many registration attempts. Please contact support.", 400)
+    );
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await User.create({ name, email, password: hashedPassword });
+  const verificationCode = user.generateVerificationCode();
+  await user.save();
+  sendVerificationCode(verificationCode, email, res);
 });
 
 export const verifyOTP = catchAsyncErrors(async (req, res, next) => {
-
-
   const { email, otp } = req.body;
   if (!email || !otp) {
-    return next(new ErrorHandler("Email or OTP is missing.", 400));
+    return next(new ErrorHandler("Email and OTP are required.", 400));
   }
-  try {
-    const userAllEntries = await User.find({
+  const userEntries = await User.find({ email, accountVerified: false }).sort({ createdAt: -1 });
+  if (userEntries.length === 0) {
+    return next(new ErrorHandler("User not found.", 404));
+  }
+  const user = userEntries[0];
+  if (userEntries.length > 1) {
+    await User.deleteMany({
+      _id: { $ne: user._id },
       email,
       accountVerified: false,
-    }).sort({ createdAt: -1 });
-    if (userAllEntries.length === 0) {
-      return next(new ErrorHandler("User not found.", 404));
-    }
-    let user;
-    if (userAllEntries.length > 1) {
-      user = userAllEntries[0];
-      await User.deleteMany({
-        _id: { $ne: user._id },
-        email,
-        accountVerified: false,
-      });
-    } else {
-      user = userAllEntries[0];
-    }
-    if (user.verificationCode !== Number(otp)) {
-      return next(new ErrorHandler("Invalid OTP.", 400));
-    }
-    const currentTime = Date.now();
-    const verificationCodeExpire = new Date(
-      user.verificationCodeExpire,
-    ).getTime();
-    if (currentTime > verificationCodeExpire) {
-      return next(new ErrorHandler("OTP expired.", 400));
-    }
-    user.accountVerified = true;
-    user.verificationCode = null;
-    user.verificationCodeExpire = null;
-    await user.save({ validateModifiedOnly: true });
-    sendToken(user, 200, "Account verified.", res);
-  } catch (error) {
-    return next(new ErrorHandler("Internal Server Error.", 500));
+    });
   }
+  if (user.verificationCode !== Number(otp)) {
+    return next(new ErrorHandler("Invalid OTP.", 400));
+  }
+  if (Date.now() > new Date(user.verificationCodeExpire).getTime()) {
+    return next(new ErrorHandler("OTP has expired.", 400));
+  }
+  user.accountVerified = true;
+  user.verificationCode = null;
+  user.verificationCodeExpire = null;
+  await user.save({ validateModifiedOnly: true });
+  sendToken(user, 200, "Account verified successfully.", res);
 });
 
 export const login = catchAsyncErrors(async (req, res, next) => {
-
   const { email, password } = req.body;
   if (!email || !password) {
-    return next(new ErrorHandler("Please provide all the fields.", 400));
+    return next(new ErrorHandler("Please provide email and password.", 400));
   }
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
     return next(new ErrorHandler("Invalid email or password.", 400));
   }
   if (!user.accountVerified) {
-    return next(
-      new ErrorHandler(
-        "Account not verified. Please verify your account before logging in.",
-        401,
-      ),
-    );
+    return next(new ErrorHandler("Account not verified. Please verify your email first.", 401));
   }
-  const isPasswordMatched = await bcrypt.compare(password, user.password);
-  if (!isPasswordMatched) {
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
     return next(new ErrorHandler("Invalid email or password.", 400));
   }
-  sendToken(user, 200, "Login successful.", res);
+  sendToken(user, 200, "Logged in successfully.", res);
 });
 
 export const logout = catchAsyncErrors(async (req, res, next) => {
@@ -139,76 +109,63 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const getUser = catchAsyncErrors(async (req, res, next) => {
-  const { user } = req;
   res.status(200).json({
     success: true,
-    user,
+    user: req.user,
   });
 });
 
 export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    return next(new ErrorHandler("User not found.", 404));
+    return next(new ErrorHandler("No account found with that email.", 404));
   }
   if (!user.accountVerified) {
     return next(new ErrorHandler("Account not verified. Please verify your email first.", 400));
   }
   const resetToken = user.getResetPasswordToken();
-
   await user.save({ validateBeforeSave: false });
-  const resetPasswordUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
-  const message = generatePasswordResetEmailTemplate(resetPasswordUrl);
+  const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
+  const message = generatePasswordResetEmailTemplate(resetUrl);
   try {
     await sendEmail({
       email: user.email,
-      subject: "Password Recovery",
+      subject: "Password Reset Request",
       message,
     });
     res.status(200).json({
       success: true,
-      message: `Email sent to ${user.email} successfully.`,
+      message: `Password reset link sent to ${user.email}.`,
     });
   } catch (error) {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save({ validateBeforeSave: false });
-    return next(new ErrorHandler(error.message, 500));
+    return next(new ErrorHandler("Failed to send reset email. Please try again.", 500));
   }
 });
 
 export const resetPassword = catchAsyncErrors(async (req, res, next) => {
   const { token } = req.params;
-  const resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
+  const resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
   const user = await User.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
   if (!user) {
-    return next(
-      new ErrorHandler("Invalid or expired password reset token.", 400),
-    );
+    return next(new ErrorHandler("Invalid or expired password reset link.", 400));
   }
-  if (req.body.password !== req.body.confirmPassword) {
-    return next(
-      new ErrorHandler("Password and Confirm Password do not match.", 400),
-    );
+  const { password, confirmPassword } = req.body;
+  if (!password || !confirmPassword) {
+    return next(new ErrorHandler("Please provide both password fields.", 400));
   }
-  if (
-    req.body.password.length < 8 ||
-    req.body.password.length > 16 ||
-    req.body.confirmPassword.length < 8 ||
-    req.body.confirmPassword.length > 16
-  ) {
-    return next(
-      new ErrorHandler("Password must be between 8 and 16 characters.", 400),
-    );
+  if (password !== confirmPassword) {
+    return next(new ErrorHandler("Passwords do not match.", 400));
   }
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  user.password = hashedPassword;
+  if (!validatePassword(password)) {
+    return next(new ErrorHandler("Password must be between 6 and 15 characters.", 400));
+  }
+  user.password = await bcrypt.hash(password, 10);
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
   await user.save();
@@ -216,44 +173,57 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const updatePassword = catchAsyncErrors(async (req, res, next) => {
-  const user = await User.findById(req.user._id).select("+password");
   const { currentPassword, newPassword, confirmNewPassword } = req.body;
-
   if (!currentPassword || !newPassword || !confirmNewPassword) {
     return next(new ErrorHandler("Please provide all required fields.", 400));
   }
-  const isPasswordMatched = await bcrypt.compare(
-    currentPassword,
-    user.password,
-  );
-
-  if (!isPasswordMatched) {
+  const user = await User.findById(req.user._id).select("+password");
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
     return next(new ErrorHandler("Current password is incorrect.", 400));
   }
-  if (
-    newPassword.length < 8 ||
-    newPassword.length > 16 ||
-    confirmNewPassword.length < 8 ||
-    confirmNewPassword.length > 16
-  ) {
-    return next(
-      new ErrorHandler("Password must be between 8 and 16 characters.", 400),
-    );
+  if (!validatePassword(newPassword)) {
+    return next(new ErrorHandler("Password must be between 6 and 15 characters.", 400));
   }
   if (newPassword !== confirmNewPassword) {
-    return next(
-      new ErrorHandler(
-        "New Password and Confirm New Password do not match.",
-        400,
-      ),
-    );
+    return next(new ErrorHandler("New passwords do not match.", 400));
   }
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  user.password = hashedPassword;
+  user.password = await bcrypt.hash(newPassword, 10);
   await user.save();
   res.status(200).json({
     success: true,
     message: "Password updated successfully.",
+  });
+});
+
+export const updateProfile = catchAsyncErrors(async (req, res, next) => {
+  const { name } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (name) user.name = name;
+
+  if (req.files && req.files.avatar) {
+    const file = req.files.avatar;
+
+    if (user.avatar && user.avatar.public_id) {
+      await cloudinary.uploader.destroy(user.avatar.public_id);
+    }
+
+    const myCloud = await cloudinary.uploader.upload(file.tempFilePath, {
+      folder: "avatars",
+    });
+
+    user.avatar = {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    };
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Profile updated successfully.",
+    user,
   });
 });

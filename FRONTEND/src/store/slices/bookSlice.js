@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 
-// Thunks
 export const fetchAllBooks = createAsyncThunk(
   "book/fetchAllBooks",
   async (_, { rejectWithValue }) => {
@@ -10,9 +9,7 @@ export const fetchAllBooks = createAsyncThunk(
       const response = await axiosInstance.get("/bookandmanga/all");
       return response.data.book;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch books"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch books.");
     }
   }
 );
@@ -21,19 +18,13 @@ export const addBook = createAsyncThunk(
   "book/addBook",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        "/bookandmanga/admin/add",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" }, 
-        }
-      );
+      const response = await axiosInstance.post("/bookandmanga/admin/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toast.success(response.data.message);
       return response.data.book;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to add book"
-      );
+      return rejectWithValue(error.response?.data?.message || "Failed to add book.");
     }
   }
 );
@@ -55,7 +46,6 @@ const bookSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // FETCH ALL BOOKS
       .addCase(fetchAllBooks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -69,7 +59,6 @@ const bookSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ADD BOOK
       .addCase(addBook.pending, (state) => {
         state.loading = true;
         state.error = null;

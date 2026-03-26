@@ -3,7 +3,6 @@ import axiosInstance from "../../utils/axiosInstance";
 import { toast } from "react-toastify";
 import { toggleAddNewAdminPopup } from "./popUpSlice";
 
-// Thunks
 export const fetchAllUsers = createAsyncThunk(
   "user/fetchAllUsers",
   async (_, { rejectWithValue }) => {
@@ -11,8 +10,8 @@ export const fetchAllUsers = createAsyncThunk(
       const response = await axiosInstance.get("/user/all");
       return response.data.users;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch users");
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch users");
+      toast.error(error.response?.data?.message || "Failed to fetch users.");
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch users.");
     }
   }
 );
@@ -26,10 +25,10 @@ export const addNewAdmin = createAsyncThunk(
       });
       toast.success(response.data.message);
       dispatch(toggleAddNewAdminPopup());
-      return response.data.user; 
+      return response.data.admin;
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add admin");
-      return rejectWithValue(error.response?.data?.message || "Failed to add admin");
+      toast.error(error.response?.data?.message || "Failed to add admin.");
+      return rejectWithValue(error.response?.data?.message || "Failed to add admin.");
     }
   }
 );
@@ -44,7 +43,6 @@ const userSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // FETCH ALL USERS
       .addCase(fetchAllUsers.pending, (state) => {
         state.loading = true;
       })
@@ -57,14 +55,13 @@ const userSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ADD NEW ADMIN
       .addCase(addNewAdmin.pending, (state) => {
         state.loading = true;
       })
       .addCase(addNewAdmin.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload) {
-            state.users.push(action.payload);
+          state.users.push(action.payload);
         }
       })
       .addCase(addNewAdmin.rejected, (state, action) => {

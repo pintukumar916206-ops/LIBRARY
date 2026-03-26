@@ -8,29 +8,26 @@ class ErrorHandler extends Error {
 export const errorMiddleware = (err, req, res, next) => {
   err.message = err.message || "Internal Server Error";
   err.statusCode = err.statusCode || 500;
+
   if (err.code === 11000) {
-    const statusCode = 400;
-    const message = `Duplicate Field Value Entered`;
-    err = new ErrorHandler(message, statusCode);
+    err = new ErrorHandler("A record with that value already exists.", 400);
   }
-  if (err.name === "JasonWebTokenError") {
-    const statusCode = 400;
-    const message = `Jason Web Token Is Invalid. Try Again!`;
-    err = new ErrorHandler(message, statusCode);
+
+  if (err.name === "JsonWebTokenError") {
+    err = new ErrorHandler("Invalid token. Please log in again.", 400);
   }
+
   if (err.name === "TokenExpiredError") {
-    const statusCode = 400;
-    const message = `Jason Web Token Is Invalid. Try Again!`;
-    err = new ErrorHandler(message, statusCode);
+    err = new ErrorHandler("Session expired. Please log in again.", 400);
   }
+
   if (err.name === "CastError") {
-    const statusCode = 400;
-    const message = `Resources Not Found. Invalid:  ${err.path}`;
-    err = new ErrorHandler(message, statusCode);
+    err = new ErrorHandler(`Invalid value for field: ${err.path}`, 400);
   }
+
   const errorMessage = err.errors
     ? Object.values(err.errors)
-        .map((error) => error.message)
+        .map((e) => e.message)
         .join(" ")
     : err.message;
 

@@ -1,116 +1,94 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import Header from "../layout/Header";
-import { use } from "react";
 
 const Users = ({ filterMode = "all" }) => {
   const { users } = useSelector((state) => state.user);
 
-  let title = "REGISTERED USERS";
+  let title = "Registered Users";
   let filteredUsers = users ? [...users] : [];
 
   if (filterMode === "admin") {
-    title = "ADMINISTRATORS";
+    title = "Administrators";
     filteredUsers = filteredUsers.filter((u) => u.role === "Admin");
   } else if (filterMode === "active_loans") {
-    title = "USERS WITH ACTIVE LOANS";
+    title = "Users with Active Loans";
     filteredUsers = filteredUsers.filter((u) => {
-      // Check if user has any borrowed book that is NOT returned and INSIDE due date
       return (
         Array.isArray(u?.borrowedBook) &&
-        u.borrowedBook.some(
-          (b) => !b.returned && new Date(b.dueDate) >= new Date(),
-        )
+        u.borrowedBook.some((b) => !b.returned && new Date(b.dueDate) >= new Date())
       );
     });
   } else if (filterMode === "overdue_loans") {
-    title = "USERS WITH OVERDUE LOANS";
+    title = "Users with Overdue Loans";
     filteredUsers = filteredUsers.filter((u) => {
-      // Check if user has any borrowed book that is NOT returned and PASSED due date
       return (
         Array.isArray(u?.borrowedBook) &&
-        u.borrowedBook.some(
-          (b) => !b.returned && new Date(b.dueDate) < new Date(),
-        )
+        u.borrowedBook.some((b) => !b.returned && new Date(b.dueDate) < new Date())
       );
     });
   } else if (filterMode === "completed_loans") {
-    title = "USERS WITH COMPLETED LOANS";
+    title = "Users with Completed Loans";
     filteredUsers = filteredUsers.filter((u) => {
-      // Check if user has any borrowed book that IS returned
-      return (
-        Array.isArray(u?.borrowedBook) && u.borrowedBook.some((b) => b.returned)
-      );
+      return Array.isArray(u?.borrowedBook) && u.borrowedBook.some((b) => b.returned);
     });
   } else {
     filteredUsers = filteredUsers.filter((u) => u.role === "User");
   }
 
-  const formDate = (timeStamp) => {
+  const formatDate = (timeStamp) => {
     const date = new Date(timeStamp);
-    const formattedDate = `${String(date.getDate()).padStart(2, "0")}-${String(
-      date.getMonth() + 1,
-    ).padStart(2, "0")}-${date.getFullYear()}`;
-
-    const formattedTime = `${String(date.getHours()).padStart(2, "0")}:${String(
-      date.getMinutes(),
-    ).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
-    return `${formattedDate}  ${formattedTime}`;
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
 
   return (
     <>
       <main className="relative flex-1 p-6 pt-28">
         <Header />
-        {/* SUB HEADER */}
-        <header
-          className="flex flex-col gap-3 md:flex-row md:justify-between
-        md:items-center "
-        >
-          <h2
-            className="text-xl font-medium md:text-2xl
-            md:font-semibold uppercase"
-          >
+        <header className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+          <h2 className="text-xl font-bold md:text-2xl text-gray-800 uppercase tracking-tight">
             {title}
           </h2>
         </header>
-        {/* TABLE */}
+
         {filteredUsers.length > 0 ? (
-          <div
-            className="mt-6 bg-white overflow-auto rounded-md 
-          shadow-lg"
-          >
-            <table className="min-w-full border-collapse">
+          <div className="mt-8 overflow-hidden bg-white rounded-xl shadow-sm border border-gray-200">
+            <table className="min-w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-300">
-                  <th className="px-4 py-2 text-left">ID</th>
-                  <th className="px-4 py-2 text-left">NAME</th>
-                  <th className="px-4 py-2 text-left">EMAIL</th>
-                  <th className="px-4 py-2 text-left">ROLE</th>
-                  <th className="px-4 py-2 text-center">
-                    NO. OF BOOKS BORROWED
-                  </th>
-                  <th className="px-4 py-2 text-center">REGISTER DATE</th>
+                <tr className="bg-gray-50 text-gray-400 uppercase text-[10px] tracking-widest font-bold border-b border-gray-100">
+                  <th className="px-6 py-4 text-left">#</th>
+                  <th className="px-6 py-4 text-left">Name</th>
+                  <th className="px-6 py-4 text-left">Email</th>
+                  <th className="px-6 py-4 text-left">Role</th>
+                  <th className="px-6 py-4 text-center">Active Loans</th>
+                  <th className="px-6 py-4 text-center">Registered At</th>
                 </tr>
               </thead>
-
-              <tbody>
+              <tbody className="divide-y divide-gray-50">
                 {filteredUsers.map((user, index) => (
-                  <tr
-                    key={user._id}
-                    className={(index + 1) % 2 === 0 ? "bg-gray-200" : ""}
-                  >
-                    <td className="px-4 py-2">{index + 1}</td>
-                    <td className="px-4 py-2">{user.name}</td>
-                    <td className="px-4 py-2">{user.email}</td>
-                    <td className="px-4 py-2">{user.role}</td>
-                    <td className="px-4 py-2 text-center ">
+                  <tr key={user._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 font-medium text-gray-400">{index + 1}</td>
+                    <td className="px-6 py-4 font-bold text-gray-800">{user.name}</td>
+                    <td className="px-6 py-4 text-gray-500">{user.email}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded-full text-[9px] font-bold uppercase ${
+                        user.role === "Admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center font-black">
                       {Array.isArray(user?.borrowedBook)
                         ? user.borrowedBook.filter((b) => !b.returned).length
                         : 0}
                     </td>
-                    <td className="px-4 py-2 text-center">
-                      {formDate(user.createdAt)}
+                    <td className="px-6 py-4 text-center text-gray-400">
+                      {formatDate(user.createdAt)}
                     </td>
                   </tr>
                 ))}
@@ -118,7 +96,11 @@ const Users = ({ filterMode = "all" }) => {
             </table>
           </div>
         ) : (
-          <h3 className="text-3xl mt-5 font-medium">NO RECORDS FOUND</h3>
+          <div className="mt-20 text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+            <h3 className="text-xl font-bold text-gray-400 uppercase tracking-widest">
+              No users found in this category
+            </h3>
+          </div>
         )}
       </main>
     </>

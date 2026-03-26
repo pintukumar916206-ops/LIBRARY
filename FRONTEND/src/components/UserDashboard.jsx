@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -27,8 +26,7 @@ import { toast } from "react-toastify";
 
 import browseIcon from "../assets/pointing.png";
 import bookIcon from "../assets/book-square.png";
-import background from "../assets/background.jpg";
-import avatarImage from "../assets/PINTU_KUMAR_.jpg";
+import userPlaceholder from "../assets/PINTU_KUMAR_.jpg";
 
 import { X } from "lucide-react";
 import { List } from "react-window";
@@ -43,12 +41,11 @@ ChartJS.register(
   Legend,
   LineElement,
   PointElement,
-  ArcElement,
+  ArcElement
 );
 
-const UserDashboard = ({ setSelectedComponent }) => {
+const UserDashboard = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(null);
 
   const { user } = useSelector((state) => state.auth);
@@ -58,11 +55,6 @@ const UserDashboard = ({ setSelectedComponent }) => {
     message: borrowMessage,
   } = useSelector((state) => state.borrow);
   const { books: allBooks } = useSelector((state) => state.book);
-
-  useEffect(() => {
-    dispatch(fetchMyBorrowedBooks());
-    dispatch(fetchAllBooks());
-  }, [dispatch]);
 
   useEffect(() => {
     if (borrowMessage) {
@@ -75,30 +67,21 @@ const UserDashboard = ({ setSelectedComponent }) => {
     }
   }, [borrowMessage, borrowError, dispatch]);
 
-  useEffect(() => {
-    if (activeTab === "browse") {
-      dispatch(fetchAllBooks());
-    }
-  }, [activeTab, dispatch]);
-
   const handleReturn = (borrowId) => {
     dispatch(returnBorrowedBook({ email: user.email, bookId: borrowId })).then(
       () => {
         dispatch(fetchMyBorrowedBooks());
-      },
+      }
     );
   };
 
-  const handleHire = (bookId) => {
-    dispatch(recordBorrowedBook({ email: user.email, bookId: bookId })).then(
-      () => {
-        dispatch(fetchMyBorrowedBooks());
-        dispatch(fetchAllBooks());
-      },
-    );
+  const handleBorrow = (bookId) => {
+    dispatch(recordBorrowedBook({ email: user.email, bookId })).then(() => {
+      dispatch(fetchMyBorrowedBooks());
+      dispatch(fetchAllBooks());
+    });
   };
 
-  // Derived Stats
   const stats = useMemo(() => {
     const safeBooks = Array.isArray(userBorrowedBooks) ? userBorrowedBooks : [];
     return {
@@ -108,14 +91,14 @@ const UserDashboard = ({ setSelectedComponent }) => {
   }, [userBorrowedBooks]);
 
   const chartData = useMemo(() => {
-    const totalBooks = allBooks?.length || 0;
-    const hasData = stats.borrowed > 0 || totalBooks > 0;
+    const totalBooksCount = allBooks?.length || 0;
+    const hasData = stats.borrowed > 0 || totalBooksCount > 0;
     return {
-      labels: hasData ? ["Borrowed Books", "No. of Books"] : ["NO DATA"],
+      labels: hasData ? ["Borrowed", "Library Total"] : ["No Data"],
       datasets: [
         {
           label: "Books",
-          data: hasData ? [stats.borrowed, totalBooks] : [1],
+          data: hasData ? [stats.borrowed, totalBooksCount] : [1],
           backgroundColor: hasData ? ["#3D3E3E", "#151619"] : ["#E5E7EB"],
           borderWidth: hasData ? 1 : 0,
         },
@@ -129,7 +112,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
       return safeBooks.filter((book) => !book.returned);
     }
     if (activeTab === "returned") {
-      return safeBooks.filter((book) => !!book.returned);
+      return safeBooks.filter((book) => !!book.returned).length;
     }
     if (activeTab === "browse") {
       return Array.isArray(allBooks) ? allBooks : [];
@@ -139,27 +122,16 @@ const UserDashboard = ({ setSelectedComponent }) => {
 
   return (
     <>
-      <main
-        className="relative w-full p-4 pt-24 lg:pt-20 bg-[#f8f9fa] 
-      transition-all duration-300 font-sans h-auto min-h-screen xl:h-screen flex flex-col xl:overflow-hidden"
-      >
+      <main className="relative w-full p-4 pt-24 lg:pt-20 bg-[#f8f9fa] transition-all duration-300 font-sans h-auto min-h-screen xl:h-screen flex flex-col xl:overflow-hidden">
         <Header />
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-2 flex-1 h-auto xl:min-h-0">
-          {/* COLUMN 1: PIE CHART */}
           <div className="flex flex-col h-full">
-            <div
-              className="bg-white p-4 rounded-2xl shadow-lg h-full flex 
-                flex-col justify-center items-center 
-                w-full border-2 border-gray-200"
-            >
+            <div className="bg-white p-4 rounded-2xl shadow-lg h-full flex flex-col justify-center items-center w-full border-2 border-gray-200">
               <h3 className="text-lg font-bold text-gray-800 mb-4 self-start">
                 ACTIVITY STATISTICS
               </h3>
-              <div
-                className="w-full flex justify-center items-center 
-              flex-1 min-h-[200px] relative h-[250px]"
-              >
+              <div className="w-full flex justify-center items-center flex-1 min-h-[200px] relative h-[250px]">
                 <Pie
                   data={chartData}
                   options={{
@@ -172,29 +144,18 @@ const UserDashboard = ({ setSelectedComponent }) => {
             </div>
           </div>
 
-          {/* COLUMN 2: STATS LIST */}
           <div className="flex flex-col gap-4 h-full justify-center">
-            {/* BORROWED BOOKS LIST ITEM */}
             <div
               onClick={() => setActiveTab("borrowed")}
-              className={`bg-white p-5 rounded-2xl shadow-sm border-2 
-                border-gray-200 hover:shadow-lg hover:border-black/10 
-                transition-all duration-300 group cursor-pointer flex 
-                items-center justify-between
-                ${activeTab === "borrowed" ? "ring-2 ring-black" : ""}`}
+              className={`bg-white p-5 rounded-2xl shadow-sm border-2 border-gray-200 hover:shadow-lg hover:border-black/10 transition-all duration-300 group cursor-pointer flex items-center justify-between ${
+                activeTab === "borrowed" ? "ring-2 ring-black" : ""
+              }`}
             >
               <div className="flex items-center gap-4">
-                <div
-                  className="p-3 bg-indigo-50 rounded-xl 
-                    group-hover:bg-indigo-100 
-                    transition-colors duration-300"
-                >
+                <div className="p-3 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors duration-300">
                   <img src={bookIcon} alt="borrowed" className="w-6 h-6" />
                 </div>
-                <h3
-                  className="text-gray-600 font-bold text-sm tracking-wide 
-                uppercase"
-                >
+                <h3 className="text-gray-600 font-bold text-sm tracking-wide uppercase">
                   Borrowed Books
                 </h3>
               </div>
@@ -203,27 +164,17 @@ const UserDashboard = ({ setSelectedComponent }) => {
               </span>
             </div>
 
-            {/* TOTAL BOOKS LIST ITEM */}
             <div
               onClick={() => setActiveTab("browse")}
-              className={`bg-white p-5 rounded-2xl shadow-sm border-2 
-                border-gray-200 hover:shadow-lg hover:border-black/10 
-                transition-all duration-300 group cursor-pointer flex 
-                items-center justify-between
-                ${activeTab === "browse" ? "ring-2 ring-black" : ""}`}
+              className={`bg-white p-5 rounded-2xl shadow-sm border-2 border-gray-200 hover:shadow-lg hover:border-black/10 transition-all duration-300 group cursor-pointer flex items-center justify-between ${
+                activeTab === "browse" ? "ring-2 ring-black" : ""
+              }`}
             >
               <div className="flex items-center gap-4">
-                <div
-                  className="p-3 bg-orange-50 rounded-xl 
-                    group-hover:bg-orange-100 
-                    transition-colors duration-300"
-                >
+                <div className="p-3 bg-orange-50 rounded-xl group-hover:bg-orange-100 transition-colors duration-300">
                   <img src={browseIcon} alt="total" className="w-6 h-6" />
                 </div>
-                <h3
-                  className="text-gray-600 font-bold text-sm tracking-wide 
-                uppercase"
-                >
+                <h3 className="text-gray-600 font-bold text-sm tracking-wide uppercase">
                   Total Books
                 </h3>
               </div>
@@ -233,27 +184,15 @@ const UserDashboard = ({ setSelectedComponent }) => {
             </div>
           </div>
 
-          {/* COLUMN 3: PROFILE CARD */}
           <div className="flex flex-col h-full">
-            <div
-              className="group flex items-center justify-center w-full 
-            mx-auto h-full bg-white p-5 rounded-2xl shadow-sm border-2 
-            border-gray-200 relative overflow-hidden hover:shadow-xl 
-            transition-all duration-300"
-            >
-              <div
-                className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b 
-              from-gray-50 to-transparent"
-              ></div>
+            <div className="group flex items-center justify-center w-full mx-auto h-full bg-white p-5 rounded-2xl shadow-sm border-2 border-gray-200 relative overflow-hidden hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-gray-50 to-transparent"></div>
 
-              <div
-                className="flex flex-col justify-center items-center gap-6 w-full 
-              relative z-10"
-              >
+              <div className="flex flex-col justify-center items-center gap-6 w-full relative z-10">
                 <div className="relative">
                   <div className="p-1 bg-white rounded-full shadow-lg border-[3px] border-gray-200">
                     <img
-                      src={user?.avatar?.url || avatarImage}
+                      src={user?.avatar?.url || userPlaceholder}
                       alt="avatar"
                       className="rounded-full w-40 h-40 object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -266,40 +205,25 @@ const UserDashboard = ({ setSelectedComponent }) => {
                     {user?.role || "USER"}
                   </span>
                   <h2 className="text-2xl 2xl:text-3xl font-black text-gray-800 mb-1">
-                    {user && user.name}
+                    {user?.name}
                   </h2>
                   <p className="text-gray-500 text-sm font-medium mb-6">
-                    {user?.email || "user@example.com"}
+                    {user?.email}
                   </p>
 
-                  <div
-                    className="grid grid-cols-2 gap-4 w-full 
-                  border-t border-gray-100 pt-6"
-                  >
-                    <div
-                      className="text-center group-hover:bg-gray-50 
-                    rounded-lg p-2 transition-colors"
-                    >
-                      <p
-                        className="text-[10px] text-gray-400 font-bold 
-                      uppercase tracking-wider"
-                      >
+                  <div className="grid grid-cols-2 gap-4 w-full border-t border-gray-100 pt-6">
+                    <div className="text-center group-hover:bg-gray-50 rounded-lg p-2 transition-colors">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                         STATUS
                       </p>
                       <p className="text-black font-bold text-sm">ACTIVE</p>
                     </div>
-                    <div
-                      className="text-center border-l border-gray-100 
-                    group-hover:bg-gray-50 rounded-lg p-2 transition-colors"
-                    >
-                      <p
-                        className="text-[10px] text-gray-400 font-bold 
-                      uppercase tracking-wider"
-                      >
+                    <div className="text-center border-l border-gray-100 group-hover:bg-gray-50 rounded-lg p-2 transition-colors">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
                         JOINED
                       </p>
                       <p className="text-black font-bold text-sm">
-                        {new Date().getFullYear()}
+                        {user?.createdAt ? new Date(user.createdAt).getFullYear() : new Date().getFullYear()}
                       </p>
                     </div>
                   </div>
@@ -309,21 +233,10 @@ const UserDashboard = ({ setSelectedComponent }) => {
           </div>
         </div>
 
-        {/* MODAL POPUP */}
         {activeTab && (
-          <div
-            className="fixed inset-0 z-50 flex items-center 
-          justify-center bg-black/50 backdrop-blur-sm animation-fade-in-up p-4"
-          >
-            <div
-              className="bg-white w-full max-w-4xl max-h-[80vh] 
-            rounded-3xl shadow-2xl overflow-hidden flex flex-col"
-            >
-              {/* MODAL HEADER */}
-              <div
-                className="bg-gray-900 text-white p-6 flex justify-between 
-              items-center shrink-0"
-              >
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white w-full max-w-4xl max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+              <div className="bg-gray-900 text-white p-6 flex justify-between items-center shrink-0">
                 <h2 className="text-2xl font-bold uppercase tracking-widest">
                   {activeTab === "borrowed"
                     ? "Active Loans"
@@ -339,11 +252,9 @@ const UserDashboard = ({ setSelectedComponent }) => {
                 </button>
               </div>
 
-              {/* MODAL BODY */}
               <div className="p-6 h-full flex-1 overflow-y-auto custom-scrollbar">
                 {filteredBooks.length > 0 ? (
                   <div className="w-full">
-                    {/* TABLE HEADER - STATIC */}
                     <div className="w-full grid grid-cols-12 gap-4 pb-4 border-b border-gray-100 text-gray-400 text-[10px] uppercase tracking-wider font-bold sticky top-0 bg-white z-10 px-2">
                       <div className="col-span-5">Book Details</div>
                       {activeTab !== "browse" && (
@@ -361,7 +272,6 @@ const UserDashboard = ({ setSelectedComponent }) => {
                       )}
                     </div>
 
-                    {/* CONTENT AREA */}
                     {activeTab === "browse" ? (
                       <div className="h-[500px] w-full mt-2">
                         <AutoSizer>
@@ -399,7 +309,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
                                     </div>
                                     <div className="col-span-2 py-4 flex items-center justify-end">
                                       <button
-                                        onClick={() => handleHire(item._id)}
+                                        onClick={() => handleBorrow(item._id)}
                                         disabled={item.quantity <= 0}
                                         className={`px-4 py-2 text-[10px] font-bold rounded-lg transition-colors shadow-md active:scale-95 ${
                                           item.quantity > 0
@@ -408,8 +318,8 @@ const UserDashboard = ({ setSelectedComponent }) => {
                                         }`}
                                       >
                                         {item.quantity > 0
-                                          ? "HIRE"
-                                          : "SOLD OUT"}
+                                          ? "BORROW"
+                                          : "UNAVAILABLE"}
                                       </button>
                                     </div>
                                   </div>
@@ -421,7 +331,7 @@ const UserDashboard = ({ setSelectedComponent }) => {
                       </div>
                     ) : (
                       <div className="flex flex-col mt-2 max-h-[500px] overflow-y-auto custom-scrollbar">
-                        {filteredBooks.map((item, index) => (
+                        {filteredBooks.map((item) => (
                           <div
                             key={item._id}
                             className="grid grid-cols-12 gap-4 items-center border-b border-gray-50 hover:bg-gray-50 transition-colors group py-4 px-2"
@@ -506,14 +416,6 @@ const UserDashboard = ({ setSelectedComponent }) => {
                           ? "You haven't returned any books yet."
                           : "No books found in the catalog."}
                     </p>
-                    {activeTab === "borrowed" && (
-                      <button
-                        onClick={() => dispatch(fetchMyBorrowedBooks())}
-                        className="text-indigo-600 text-xs font-bold hover:underline"
-                      >
-                        REFRESH DATA
-                      </button>
-                    )}
                   </div>
                 )}
               </div>
@@ -521,21 +423,12 @@ const UserDashboard = ({ setSelectedComponent }) => {
           </div>
         )}
 
-        {/* QUOTE SECTION */}
-        <div
-          className="hidden xl:flex bg-white text-lg p-3 sm:text-xl 
-            xl:text-xl min-h-0 h-24 font-semibold relative w-full
-            justify-center items-center rounded-2xl shadow-sm border-2 
-            border-gray-200 flex-none"
-        >
-          <h4 className="overflow-y-hidden text-center px-4 text-black">
+        <div className="hidden xl:flex bg-white text-lg p-3 sm:text-xl xl:text-xl min-h-0 h-24 font-semibold relative w-full justify-center items-center rounded-2xl shadow-sm border-2 border-gray-200 flex-none">
+          <h4 className="overflow-y-hidden text-center px-4 text-black italic font-medium">
             "A reader lives a thousand lives before he dies. The man who never
             reads lives only one."
           </h4>
-          <p
-            className="text-gray-500 text-sm sm:text-base absolute right-[35px] 
-              sm:right-[78px] bottom-[15px] font-bold"
-          >
+          <p className="text-gray-400 text-[10px] absolute right-8 bottom-3 font-bold tracking-widest uppercase">
             ~ Developed by NEXUS TEAM
           </p>
         </div>

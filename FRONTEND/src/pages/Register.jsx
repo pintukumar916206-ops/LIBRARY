@@ -12,11 +12,12 @@ const Register = () => {
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-
-  const { isAuthenticated, user, error, message, loading } = useSelector(
-    (state) => state.auth,
-  );
   const navigateTo = useNavigate();
+
+  const { isAuthenticated, error, message, loading } = useSelector(
+    (state) => state.auth
+  );
+
   const handleRegister = async (e) => {
     e.preventDefault();
     const data = new FormData();
@@ -25,6 +26,7 @@ const Register = () => {
     data.append("password", password);
     dispatch(register(data));
   };
+
   useEffect(() => {
     if (message) {
       dispatch(resetAuthSlice());
@@ -34,114 +36,82 @@ const Register = () => {
       toast.error(error);
       dispatch(resetAuthSlice());
     }
-  }, [dispatch, error, loading, isAuthenticated]);
+  }, [dispatch, error, message]);
+
   if (isAuthenticated) {
-    return <Navigate to={"/"} />;
+    return <Navigate to="/" />;
   }
+
   return (
     <>
-      <div
-        className="flex flex-col md:flex-row 
-      h-screen overflow-hidden"
-      >
-        <div
-          className="hidden w-full md:w-1/2 bg-black text-white 
-      md:flex flex-col items-center justify-center p-8 
-      rounded-tr-[80px] rounded-br-[80px] "
-        >
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden">
+        <div className="hidden w-full md:w-1/2 bg-black text-white md:flex flex-col items-center justify-center p-8 rounded-tr-[80px] rounded-br-[80px]">
           <div className="text-center h-[375px]">
             <div className="flex justify-center mb-12">
-              <img
-                src={logo_with_title}
-                alt="Logo"
-                className="mb-12 h-44 w-auto"
-              />
+              <img src={logo_with_title} alt="Logo" className="mb-12 h-44 w-auto" />
             </div>
-            <p className="text-gray-300 mb-12">
-              {" "}
-              Already Have An Account? Sign in now.{" "}
-            </p>
+            <p className="text-gray-300 mb-12">Already have an account? Sign in.</p>
             <Link
-              to={"/login"}
-              className="border-2 rounded-lg 
-          py-2 font-semibold border-white px-8 hover:bg-white 
-          hover:text-black transition "
+              to="/login"
+              className="border-2 rounded-lg py-2 font-semibold border-white px-8 hover:bg-white hover:text-black transition"
             >
               SIGN IN
             </Link>
           </div>
         </div>
-        <div
-          className="w-full md:w-1/2 flex items-center 
-        justify-center bg-white p-6 overflow-hidden"
-        >
-          <div className=" w-full max-w-sm ">
-            <div className=" flex justify-center mb-2 ">
-              <div
-                className=" flex flex-col-reverse sm:flex-row items-center
-              justify-center gap-5"
-              >
-                <h3 className=" font-medium text-4xl overflow-hidden ">
-                  Sign Up
-                </h3>
-                <img
-                  src={logo}
-                  alt="logo"
-                  className="h-44 w-auto object-cover"
-                />
+        <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-6 overflow-hidden">
+          <div className="w-full max-w-sm">
+            <div className="flex justify-center mb-2">
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-center gap-5">
+                <h3 className="font-medium text-4xl overflow-hidden">Sign Up</h3>
+                <img src={logo} alt="logo" className="h-44 w-auto object-cover" />
               </div>
             </div>
-            <p className="text-gray-800 text-center mb-12  ">
-              Please provide your information to create an account.
+            <p className="text-gray-800 text-center mb-12">
+              Fill in your details to create an account.
             </p>
             <form onSubmit={handleRegister}>
-              <div className=" mb-4 ">
+              <div className="mb-4">
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full Name"
-                  className="w-full px-4 py-4 border border-black rounded-md
-                  focus:outline-none"
+                  className="w-full px-4 py-4 border border-black rounded-md focus:outline-none"
                 />
               </div>
-              <div className=" mb-4 ">
+              <div className="mb-4">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
-                  className="w-full px-4 py-4 border border-black rounded-md
-                  focus:outline-none"
+                  className="w-full px-4 py-4 border border-black rounded-md focus:outline-none"
                 />
               </div>
-              <div className=" mb-4 ">
+              <div className="mb-4">
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full px-4 py-4 border border-black rounded-md
-                  focus:outline-none"
+                  minLength={6}
+                  maxLength={15}
+                  className="w-full px-4 py-4 border border-black rounded-md focus:outline-none"
                 />
               </div>
-              <div className="block md:hidden font-semibold mt-5 ">
+              <div className="block md:hidden font-semibold mt-5">
                 <p>
-                  Already have account?
-                  <Link
-                    to="/login"
-                    className="text-sm text-gray-500
-                  underline"
-                  >
+                  Already have an account?{" "}
+                  <Link to="/login" className="text-sm text-gray-500 underline">
                     Sign In
                   </Link>
                 </p>
               </div>
               <button
                 type="submit"
-                className="border mt-5 border-black w-full
-              font-semibold bg-black text-white py-4 
-              rounded-lg hover:bg-white hover:text-black transition"
+                disabled={loading}
+                className="border mt-5 border-black w-full font-semibold bg-black text-white py-4 rounded-lg hover:bg-white hover:text-black transition"
               >
                 SIGN UP
               </button>

@@ -6,9 +6,9 @@ export const connectDB = () => {
       dbName: "MEARN_STACK_MANGA_MANAGEMENT_SYSTEM",
     })
     .then(() => {
-      console.log(`DATABASE CONNECTED SUCCESSFULLY.`);
+      console.log("Database connected.");
     })
     .catch((err) => {
-      console.log(`Error Connecting To Database`, err);
+      console.error("Database connection failed:", err.message);
     });
 };

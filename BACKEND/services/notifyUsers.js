@@ -4,33 +4,30 @@ import { sendEmail } from "../utils/sendEmail.js";
 import { User } from "../models/userModel.js";
 
 export const notifyUsers = () => {
-  cron.schedule("0*/30 * * * *", async () => {
+  cron.schedule("*/30 * * * *", async () => {
     try {
-      
-      console.log("CRON RUNNING...");
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const borrowers = await Borrow.find({
+      const overdueBorrows = await Borrow.find({
         dueDate: { $lte: oneDayAgo },
         returned: false,
         notified: false,
       });
-      console.log("FOUND RECORDS:", borrowers.length);
-      for (const borrower of borrowers) {
-        console.log("PROCESSING:", borrower._id);
-        if (borrower.user && borrower.user.email) {
-          const user = await User.findById(borrower.user.id);
-          sendEmail({
-            email: user.email,
-            subject: "Overdue of Book/Manga Reminder",
-            message: `Dear ${user.name},\n\nThis is a friendly reminder that the book/manga you borrowed is overdue. Please return it as soon as possible to avoid further penalties.`,
-          });
-          borrower.notified = true;
-          await borrower.save();
-          console.log("EMAIL SENT TO:", borrower.user.email);
+      for (const borrow of overdueBorrows) {
+        if (borrow.user && borrow.user.email) {
+          const user = await User.findById(borrow.user.id);
+          if (user) {
+            await sendEmail({
+              email: user.email,
+              subject: "Overdue Book Reminder",
+              message: `Dear ${user.name},<br/><br/>This is a reminder that the book you borrowed is overdue. Please return it as soon as possible to avoid further penalties.`,
+            });
+            borrow.notified = true;
+            await borrow.save();
+          }
         }
       }
     } catch (error) {
-      console.error("Error notifying users about overdue items:", error);
+      console.error("Failed to send overdue notifications:", error.message);
     }
   });
 };

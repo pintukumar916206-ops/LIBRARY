@@ -13,15 +13,15 @@ const ResetPassword = () => {
   const dispatch = useDispatch();
 
   const { isAuthenticated, error, message, loading } = useSelector(
-    (state) => state.auth,
+    (state) => state.auth
   );
 
-  const handleResetPassword = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("password", password);
     formData.append("confirmPassword", confirmPassword);
-    dispatch(resetPassword(formData, token));
+    dispatch(resetPassword({ data: formData, token }));
   };
 
   useEffect(() => {
@@ -36,78 +36,55 @@ const ResetPassword = () => {
   }, [dispatch, error, message]);
 
   if (isAuthenticated) {
-    return <Navigate to={"/"} />;
+    return <Navigate to="/" />;
   }
 
   return (
     <>
       <div className="flex flex-col md:flex-row h-screen justify-center">
-        {/* LEFT SIDE */}
-        <div
-          className="hidden w-full md:w-1/2 bg-black text-white 
-        md:flex flex-col items-center justify-center p-8 
-        rounded-tr-[80px] rounded-br-[80px]"
-        >
+        <div className="hidden w-full md:w-1/2 bg-black text-white md:flex flex-col items-center justify-center p-8 rounded-tr-[80px] rounded-br-[80px]">
           <div className="text-center h-[450px]">
             <div className="flex justify-center mb-12">
-              <img
-                src={logo_with_title}
-                alt="Logo"
-                className="mb-12 h-44 w-auto"
-              />
+              <img src={logo_with_title} alt="Logo" className="mb-12 h-44 w-auto" />
             </div>
-            <h3
-              className="text-gray-300 mb-12 max-w-[320px] 
-            text-3xl font-medium leading-10 mx-auto"
-            >
-              "Your destination for borrowing and reading books."
+            <h3 className="text-gray-300 mb-12 max-w-[320px] text-3xl font-medium leading-10 mx-auto">
+              Your destination for borrowing and reading books.
             </h3>
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div
-          className="w-full md:w-1/2 flex 
-        items-center justify-center bg-white p-8 relative"
-        >
+        <div className="w-full md:w-1/2 flex items-center justify-center bg-white p-8 relative">
           <Link
-            to={"/login"}
-            className="border-2 border-black rounded-3xl 
-            font-bold w-55 py-2 px-10 fixed top-10 -left-5
-            hover:bg-black hover:text-white transition 
-            duration-300 text-end"
+            to="/login"
+            className="border-2 border-black rounded-3xl font-bold w-55 py-2 px-10 fixed top-10 -left-5 hover:bg-black hover:text-white transition duration-300 text-end"
           >
             BACK
           </Link>
 
-          <div className="w-full max-w-sm ">
-            <div className="flex justify-center mb-12 ">
-              <div className="rounded-full flex items-center justify-center">
-                <img src={logo} alt="Logo" className="h-44 w-auto" />
-              </div>
+          <div className="w-full max-w-sm">
+            <div className="flex justify-center mb-12">
+              <img src={logo} alt="Logo" className="h-44 w-auto" />
             </div>
 
-            <h1
-              className="text-4xl font-medium text-center 
-            mb-2 overflow-hidden"
-            >
+            <h1 className="text-4xl font-medium text-center mb-2 overflow-hidden">
               Reset Password
             </h1>
 
             <p className="text-gray-800 text-center mb-12">
-              Please enter your new password.
+              Enter your new password below.
             </p>
 
-            <form onSubmit={handleResetPassword}>
+            <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <input
                   type="password"
                   required
+                  minLength={6}
+                  maxLength={15}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full px-4 py-4 border border-black 
-                  rounded-md focus:outline-none"
+                  placeholder="New Password"
+                  className="w-full px-4 py-4 border border-black rounded-md focus:outline-none"
                 />
               </div>
 
@@ -115,20 +92,19 @@ const ResetPassword = () => {
                 <input
                   type="password"
                   required
+                  minLength={6}
+                  maxLength={15}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm Password"
-                  className="w-full px-4 py-4 border border-black 
-                  rounded-md focus:outline-none"
+                  className="w-full px-4 py-4 border border-black rounded-md focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="border mt-5 border-black w-full 
-                font-semibold bg-black text-white py-4 
-                rounded-lg hover:bg-white hover:text-black transition"
                 disabled={loading}
+                className="border mt-5 border-black w-full font-semibold bg-black text-white py-4 rounded-lg hover:bg-white hover:text-black transition"
               >
                 RESET PASSWORD
               </button>
