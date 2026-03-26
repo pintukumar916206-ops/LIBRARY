@@ -18,6 +18,8 @@ function validatePassword(password) {
 
 export const register = catchAsyncErrors(async (req, res, next) => {
   const { name, email, password } = req.body;
+  console.log("Registration request received for:", email);
+
   if (!name || !email || !password) {
     return next(new ErrorHandler("Please provide all required fields.", 400));
   }
@@ -28,20 +30,18 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   if (isRegistered) {
     return next(new ErrorHandler("User already registered. Please log in.", 400));
   }
-  const registrationAttempts = await User.countDocuments({
-    email,
-    accountVerified: false,
-  });
-  if (registrationAttempts >= 5) {
-    return next(
-      new ErrorHandler("Too many registration attempts. Please contact support.", 400)
-    );
-  }
+
+  console.log("Hashing password...");
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  console.log("Creating user record...");
   const user = await User.create({ name, email, password: hashedPassword });
   const verificationCode = user.generateVerificationCode();
   await user.save();
+
+  console.log("Attempting to send verification email...");
   await sendVerificationCode(verificationCode, email, res, next);
+  console.log("Registration process initiated successfully.");
 });
 
 export const verifyOTP = catchAsyncErrors(async (req, res, next) => {

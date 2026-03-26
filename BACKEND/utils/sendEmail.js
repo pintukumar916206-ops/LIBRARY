@@ -11,6 +11,7 @@ export const sendEmail = async ({ email, subject, message }) => {
     },
   });
 
+  console.log("Sending email to:", email, "with subject:", subject);
   const mailOptions = {
     from: `"Nexus Library" <${process.env.SMTP_MAIL}>`,
     to: email,

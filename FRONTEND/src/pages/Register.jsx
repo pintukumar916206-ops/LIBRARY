@@ -20,6 +20,7 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    console.log("Registering user with data:", { name, email, password });
     dispatch(register({ name, email, password }));
   };
 
@@ -107,6 +108,7 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={loading}
+                onClick={() => console.log("Sign Up button clicked visually!")}
                 className="border mt-5 border-black w-full font-semibold bg-black text-white py-4 rounded-lg hover:bg-white hover:text-black transition"
               >
                 SIGN UP
