@@ -17,31 +17,35 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const App = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, user, loading: authLoading } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
   const { books } = useSelector((state) => state.book);
   const { userBorrowedBooks, allBorrowedBooks } = useSelector((state) => state.borrow);
   const { users } = useSelector((state) => state.user);
 
   useEffect(() => {
-    if (!isAuthenticated && !authLoading) {
+    if (!isAuthChecked) {
       dispatch(getUser());
     }
-    if (books.length === 0) {
-      dispatch(fetchAllBooks());
-    }
-  }, [dispatch, isAuthenticated, authLoading, books.length]);
+  }, [dispatch, isAuthChecked]);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === "User" && userBorrowedBooks.length === 0) {
-        dispatch(fetchMyBorrowedBooks());
+    if (isAuthChecked && isAuthenticated) {
+      if (books.length === 0) {
+        dispatch(fetchAllBooks());
       }
-      if (user.role === "Admin") {
-        if (users.length === 0) dispatch(fetchAllUsers());
-        if (allBorrowedBooks.length === 0) dispatch(fetchAllBorrowedBooks());
+      if (user) {
+        if (user.role === "User" && userBorrowedBooks.length === 0) {
+          dispatch(fetchMyBorrowedBooks());
+        }
+        if (user.role === "Admin") {
+          if (users.length === 0) dispatch(fetchAllUsers());
+          if (allBorrowedBooks.length === 0) dispatch(fetchAllBorrowedBooks());
+        }
       }
     }
-  }, [isAuthenticated, user, userBorrowedBooks.length, users.length, allBorrowedBooks.length, dispatch]);
+  }, [isAuthChecked, isAuthenticated, user, books.length, userBorrowedBooks.length, users.length, allBorrowedBooks.length, dispatch]);
+
+
 
   return (
     <Router>

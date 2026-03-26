@@ -122,6 +122,7 @@ const authSlice = createSlice({
     user: null,
     message: null,
     isAuthenticated: false,
+    isAuthChecked: false,
   },
   reducers: {
     resetAuthSlice(state) {
@@ -202,11 +203,13 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
+        state.isAuthChecked = true;
       })
       .addCase(getUser.rejected, (state) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
+        state.isAuthChecked = true;
       })
 
       .addCase(forgotPassword.pending, (state) => {
