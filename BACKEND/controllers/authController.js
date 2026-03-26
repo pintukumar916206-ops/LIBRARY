@@ -41,7 +41,7 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   const user = await User.create({ name, email, password: hashedPassword });
   const verificationCode = user.generateVerificationCode();
   await user.save();
-  sendVerificationCode(verificationCode, email, res);
+  await sendVerificationCode(verificationCode, email, res, next);
 });
 
 export const verifyOTP = catchAsyncErrors(async (req, res, next) => {

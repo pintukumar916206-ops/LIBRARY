@@ -1,12 +1,12 @@
 import { generateVerificationOtpEmailTemplate } from "./emailTemplates.js";
 import { sendEmail } from "./sendEmail.js";
 
-export async function sendVerificationCode(verificationCode, email, res) {
+export async function sendVerificationCode(verificationCode, email, res, next) {
   try {
     const message = generateVerificationOtpEmailTemplate(verificationCode);
     await sendEmail({
       email,
-      subject: "Your Verification Code",
+      subject: "Your Verification Code - Nexus Library",
       message,
     });
     res.status(200).json({
@@ -14,9 +14,10 @@ export async function sendVerificationCode(verificationCode, email, res) {
       message: "Verification code sent to your email.",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to send verification code. Please try again.",
+    console.error("SMTP Error:", error.message);
+    return next({
+      message: "Failed to send verification email. Check your SMTP settings.",
+      statusCode: 500,
     });
   }
 }
