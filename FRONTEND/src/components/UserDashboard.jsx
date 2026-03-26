@@ -195,6 +195,9 @@ const UserDashboard = () => {
                       src={user?.avatar?.url || userPlaceholder}
                       alt="avatar"
                       className="rounded-full w-40 h-40 object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={(e) => {
+                        e.target.src = userPlaceholder;
+                      }}
                     />
                   </div>
                   <div className="absolute bottom-3 right-3 bg-green-500 w-5 h-5 border-4 border-white rounded-full"></div>

@@ -194,6 +194,9 @@ const AdminDashboard = ({ setSelectedComponent }) => {
                       src={user?.avatar?.url || placeholderAvatar}
                       alt="avatar"
                       className="rounded-full w-32 h-32 object-cover transition-transform duration-500 group-hover:scale-105"
+                      onError={(e) => {
+                        e.target.src = placeholderAvatar;
+                      }}
                     />
                   </div>
                   <div className="absolute bottom-2 right-2 bg-gray-900 w-4 h-4 border-2 border-white rounded-full"></div>
