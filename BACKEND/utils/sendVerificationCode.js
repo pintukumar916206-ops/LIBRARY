@@ -14,9 +14,11 @@ export async function sendVerificationCode(verificationCode, email, res, next) {
       message: "Verification code sent to your email.",
     });
   } catch (error) {
-    return next({
-      message: "Failed to send verification email. Check your SMTP settings.",
-      statusCode: 500,
+    res.status(200).json({
+      success: true,
+      message: "Account created. If verification email fails, contact support.",
+      emailError: true,
     });
   }
 }
+

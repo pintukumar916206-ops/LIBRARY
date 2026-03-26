@@ -25,14 +25,22 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   if (!validatePassword(password)) {
     return next(new ErrorHandler("Password must be between 6 and 15 characters.", 400));
   }
-  const isRegistered = await User.findOne({ email, accountVerified: true });
-  if (isRegistered) {
+
+  let user = await User.findOne({ email });
+
+  if (user && user.accountVerified) {
     return next(new ErrorHandler("User already registered. Please log in.", 400));
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await User.create({ name, email, password: hashedPassword });
+  if (user) {
+    user.name = name;
+    user.password = hashedPassword;
+  } else {
+    user = new User({ name, email, password: hashedPassword });
+  }
+
   const verificationCode = user.generateVerificationCode();
   await user.save();
 
