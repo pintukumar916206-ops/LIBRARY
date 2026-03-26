@@ -23,7 +23,7 @@ app.use(helmet());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 1000, // Increased from 100 to 1000 to prevent 429 during testing
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests from this IP. Please try again after 15 minutes.",

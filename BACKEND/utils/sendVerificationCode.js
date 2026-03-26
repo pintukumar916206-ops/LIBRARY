@@ -14,7 +14,6 @@ export async function sendVerificationCode(verificationCode, email, res, next) {
       message: "Verification code sent to your email.",
     });
   } catch (error) {
-    console.error("SMTP Error:", error.message);
     return next({
       message: "Failed to send verification email. Check your SMTP settings.",
       statusCode: 500,

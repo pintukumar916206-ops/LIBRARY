@@ -20,19 +20,15 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    console.log("Registering user with data:", { name, email, password });
     dispatch(register({ name, email, password }));
   };
 
   useEffect(() => {
-    console.log("Current Auth State:", { message, error, isAuthenticated });
     if (message) {
-      console.log("Success message received, redirecting to OTP...");
       dispatch(resetAuthSlice());
       navigateTo(`/otp-verify/${email}`);
     }
     if (error) {
-      console.error("Registration failed with error:", error);
       toast.error(error);
       dispatch(resetAuthSlice());
     }
@@ -80,7 +76,7 @@ const Register = () => {
                   className="w-full px-4 py-4 border border-black rounded-md focus:outline-none"
                 />
               </div>
-              <div className="mb-4">
+              <div className="mb-4 text-center">
                 <input
                   type="email"
                   value={email}
@@ -111,7 +107,6 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={loading}
-                onClick={() => console.log("Sign Up button clicked visually!")}
                 className="border mt-5 border-black w-full font-semibold bg-black text-white py-4 rounded-lg hover:bg-white hover:text-black transition"
               >
                 SIGN UP

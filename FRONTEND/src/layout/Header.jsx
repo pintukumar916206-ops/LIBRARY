@@ -43,7 +43,6 @@ const Header = () => {
     bg-white/70 backdrop-blur-md w-[calc(100%-85px)] md:w-full py-3 px-6 left-0 shadow-sm 
     md:rounded-none border-b border-white/50 flex justify-between items-center z-50"
     >
-      {/* LEFT SIDE */}
       <motion.div
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -69,7 +68,6 @@ const Header = () => {
           </span>
         </div>
       </motion.div>
-      {/* RIGHT SIDE */}
       <motion.div
         initial={{ x: 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}

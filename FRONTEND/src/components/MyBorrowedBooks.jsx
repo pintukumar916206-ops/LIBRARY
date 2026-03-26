@@ -52,7 +52,6 @@ const MyBorrowedBooks = () => {
       return;
     }
     setSelectedBook(borrowedBook.book);
-    // open popup AFTER book is set
     setTimeout(() => {
       dispatch(toggleReadBookPopup());
     }, 0);
@@ -85,8 +84,6 @@ const MyBorrowedBooks = () => {
     <>
       <main className="relative flex-1 p-6 pt-28">
         <Header />
-
-        {/* SUB HEADER */}
 
         <header
           className="flex flex-col gap-3 md:flex-row 

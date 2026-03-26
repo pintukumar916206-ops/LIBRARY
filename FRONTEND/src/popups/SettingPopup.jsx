@@ -80,7 +80,6 @@ const SettingPopup = () => {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* PROFILE UPDATE SECTION */}
             <section>
               <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 px-1">
                 Public Profile
@@ -121,7 +120,6 @@ const SettingPopup = () => {
               </form>
             </section>
 
-            {/* PASSWORD UPDATE SECTION */}
             <section className="md:border-l md:pl-12 border-gray-100">
               <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 px-1">
                 Security

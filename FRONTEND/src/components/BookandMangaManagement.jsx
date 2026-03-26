@@ -70,9 +70,7 @@ const BookandMangaManagement = () => {
         dispatch(fetchMyBorrowedBooks());
       }
       setShowDateModal(false);
-    } catch (err) {
-      // Error handling is centralized in useEffect toast
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {
