@@ -1,0 +1,2 @@
+import {describe,it,expect}from "vitest";import {formatDate,formatDateTime}from "../../src/utils/dateHelpers";
+describe("dateHelpers Utils",()=>{const testDate=new Date("2026-04-07T14:30:00Z");it("formats date correctly (DD-MM-YYYY)",()=>{expect(formatDate(testDate)).toBe("07-04-2026");});it("formats dateTime correctly (DD-MM-YYYY HH:mm)",()=>{expect(formatDateTime(testDate)).toBe("07-04-2026 20:00");});it("handles invalid dates gracefully",()=>{expect(formatDate(null)).toBe("-");expect(formatDateTime(undefined)).toBe("-");});});

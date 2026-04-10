@@ -1,0 +1,165 @@
+version: "3.9"
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7-alpine
+    container_name: library_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: library
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - library_network
+
+  # Backend API Server
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: library_backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      # Server
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 4000
+
+      # Database
+      MONGO_URL: mongodb://${MONGO_ROOT_USER:-root}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/library?authSource=admin
+
+      # JWT & Auth
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production-min-32-chars}
+      JWT_EXPIRE: 24h
+      COOKIE_EXPIRE: 7
+
+      # Cloudinary
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+
+      # Email (SendGrid)
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      SENDGRID_FROM_EMAIL: ${SENDGRID_FROM_EMAIL:-noreply@yourlibrary.com}
+
+      # CORS
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+
+      # Rate Limiting
+      RATE_LIMIT_WINDOW: 15
+      RATE_LIMIT_MAX_REQUESTS: 1000
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('node:http').get('http://localhost:4000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - library_network
+
+  # Frontend Development Server
+  frontend:
+    image: node:20-alpine
+    container_name: library_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://backend:4000/api
+      NODE_ENV: development
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5173",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - library_network
+
+  # MongoDB Admin (Optional - for development)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: library_mongo_express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USER:-root}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USER:-root}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-admin}
+    depends_on:
+      - mongodb
+    networks:
+      - library_network
+    profiles:
+      - debug
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  library_network:
+    driver: bridge
+
+# Development usage:
+# docker-compose up -d
+#
+# Production usage:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Viewing logs:
+# docker-compose logs -f backend
+# docker-compose logs -f frontend
+#
+# Stopping:
+# docker-compose down
+#
+# Removing volumes:
+# docker-compose down -v

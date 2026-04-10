@@ -1,0 +1,2 @@
+import {describe,it,expect}from "vitest";import userReducer,{resetUserSlice,fetchAllUsers}from "../../src/store/slices/userSlice";
+describe("userSlice",()=>{const initialState={users:[],loading:false,error:null,message:null};it("should return initial state",()=>{expect(userReducer(undefined,{})).toEqual(initialState);});it("should handle fetchAllUsers.fulfilled",()=>{const users=[{id:1}];const state=userReducer(initialState,fetchAllUsers.fulfilled(users,"",""));expect(state.loading).toBe(false);expect(state.users).toEqual(users);});});

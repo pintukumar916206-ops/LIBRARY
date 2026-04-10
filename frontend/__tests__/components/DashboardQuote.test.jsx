@@ -1,0 +1,2 @@
+import React from "react";import {render,screen}from "@testing-library/react";import {describe,it,expect}from "vitest";import DashboardQuote from "../../src/components/dashboard/DashboardQuote";
+describe("DashboardQuote Component",()=>{it("renders correctly",()=>{render(<DashboardQuote/>);expect(screen.getByText(/LIBRARIAN'S MANUAL/i)).toBeInTheDocument();expect(screen.getByText(/SYSTEM STATUS: NOMINAL/i)).toBeInTheDocument();});});

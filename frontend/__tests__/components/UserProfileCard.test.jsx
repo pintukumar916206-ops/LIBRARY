@@ -1,0 +1,2 @@
+import React from "react";import {render,screen}from "@testing-library/react";import {describe,it,expect}from "vitest";import UserProfileCard from "../../src/components/dashboard/UserProfileCard";
+describe("UserProfileCard Component",()=>{const user={name:"Alice Admin",email:"alice@example.com",role:"ADMIN"};it("renders user information correctly",()=>{render(<UserProfileCard user={user}/>);expect(screen.getByText("Alice Admin")).toBeInTheDocument();expect(screen.getByText("alice@example.com")).toBeInTheDocument();expect(screen.getByText("ADMIN")).toBeInTheDocument();});});
