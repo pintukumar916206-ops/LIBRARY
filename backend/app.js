@@ -35,7 +35,6 @@ app.use(
 
 // app.use(helmet()); // Temporarily disabled for production connection stability
 // app.use("/api", apiLimiter); // Temporarily disabled
-app.use(siteOriginMiddleware);
 app.use(cookieParser());
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
