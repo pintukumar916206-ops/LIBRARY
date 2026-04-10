@@ -20,7 +20,7 @@ import { removeUnverifiedAccounts } from "./services/removeUnverifiedAccounts.js
 import { FILE_UPLOAD } from "./constants/index.js";
 import { siteOriginMiddleware } from "./middleware/siteOriginMiddleware.js";
 
-const app = express();
+export const app = express();
 app.set("trust proxy", 1);
 
 // ALWAYS CORS FIRST
