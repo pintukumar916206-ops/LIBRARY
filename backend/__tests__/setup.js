@@ -2,7 +2,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import { app } from "../app.js";
 process.env.JWT_SECRET_KEY = "test_secret_key";
-process.env.FRONTEND_URL = "http://localhost:5173";
+process.env.FRONTEND_URL = "http:;
 process.env.NODE_ENV = "test";
 process.env.JWT_EXPIRE = "7d";
 let mongoServer;

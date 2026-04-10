@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dns from "dns";
 
-// DNS FIX: Force Google DNS to resolve Atlas SRV records (fixes ECONNREFUSED)
+
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 export const connectDB = async () => {

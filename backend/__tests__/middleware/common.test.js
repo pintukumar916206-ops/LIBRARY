@@ -31,26 +31,26 @@ describe("Middleware/Common - Intensive", () => {
   });
 
   test("Origin-Allowed", async () => {
-    process.env.FRONTEND_URL = "http://localhost:5173";
+    process.env.FRONTEND_URL = "http:;
     const res = await request(app)
       .post("/api/v1/auth/login")
-      .set("Origin", "http://localhost:5173");
+      .set("Origin", "http:;
     expect(res.statusCode).not.toBe(403);
   });
 
   test("Origin-Forbidden", async () => {
-    process.env.FRONTEND_URL = "http://localhost:5173";
+    process.env.FRONTEND_URL = "http:;
     const res = await request(app)
       .post("/api/v1/auth/login")
-      .set("Origin", "http://evil.com");
+      .set("Origin", "http:;
     expect(res.statusCode).toBe(403);
   });
 
   test("Referer-Forbidden", async () => {
-    process.env.FRONTEND_URL = "http://localhost:5173";
+    process.env.FRONTEND_URL = "http:;
     const res = await request(app)
       .post("/api/v1/auth/login")
-      .set("Referer", "http://evil.com/");
+      .set("Referer", "http:;
     expect(res.statusCode).toBe(403);
   });
 

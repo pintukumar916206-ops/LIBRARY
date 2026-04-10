@@ -1,27 +1,27 @@
 import { jest } from "@jest/globals";
 
-// Mock Cloudinary
+
 jest.unstable_mockModule("cloudinary", () => ({
   v2: {
     config: jest.fn(),
     uploader: {
       upload: jest.fn().mockResolvedValue({
         public_id: "mock_public_id",
-        secure_url: "https://mock.url/image.jpg",
+        secure_url: "https:,
       }),
       destroy: jest.fn().mockResolvedValue({ result: "ok" }),
     },
   },
 }));
 
-// Mock Nodemailer
+
 jest.unstable_mockModule("nodemailer", () => ({
   createTransport: jest.fn().mockReturnValue({
     sendMail: jest.fn().mockResolvedValue({ messageId: "mock_id" }),
   }),
 }));
 
-// Mock Winston Logger
+
 jest.unstable_mockModule("../utils/logger.js", () => ({
   default: {
     info: jest.fn(),
@@ -31,7 +31,7 @@ jest.unstable_mockModule("../utils/logger.js", () => ({
   },
 }));
 
-// Helper to mock Express Request and Response
+
 export const mockRequest = (body = {}, params = {}, query = {}, user = {}, cookies = {}, files = {}) => ({
   body,
   params,

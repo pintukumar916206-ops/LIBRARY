@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 import { mockRequest, mockResponse, mockNext } from "./helpers/testSetup.js";
 
-// Mock the dependencies
+
 jest.unstable_mockModule("../models/userModel.js", () => ({
   User: {
     find: jest.fn().mockReturnValue({ skip: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue([]) }) }),
@@ -22,7 +22,7 @@ jest.unstable_mockModule("cloudinary", () => ({
     uploader: {
       upload: jest.fn().mockResolvedValue({
         public_id: "mock_avatar_id",
-        secure_url: "https://mock.url/avatar.jpg",
+        secure_url: "https:,
       }),
     },
   },

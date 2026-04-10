@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 import { mockRequest, mockResponse, mockNext } from "./helpers/testSetup.js";
 
-// Mock the dependencies
+
 jest.unstable_mockModule("../models/bookandmangaModel.js", () => ({
   Book: {
     findOneAndUpdate: jest.fn(),

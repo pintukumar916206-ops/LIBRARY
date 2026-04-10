@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 import { mockRequest, mockResponse, mockNext } from "./helpers/testSetup.js";
 
-// Mock the dependencies
+
 jest.unstable_mockModule("../models/bookandmangaModel.js", () => ({
   Book: {
     create: jest.fn(),
@@ -17,7 +17,7 @@ jest.unstable_mockModule("cloudinary", () => ({
     uploader: {
       upload: jest.fn().mockResolvedValue({
         public_id: "mock_public_id",
-        secure_url: "https://mock.url/image.jpg",
+        secure_url: "https:,
       }),
     },
   },

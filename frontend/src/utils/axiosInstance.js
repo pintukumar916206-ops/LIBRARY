@@ -3,14 +3,14 @@ import axios from "axios";
 const getBaseURL = () => {
   const envURL = import.meta.env.VITE_API_URL;
   
-  // FAILSAFE FALLBACK: If Render environment variables fail during build, use your specific Backend URL
-  const productionFallback = "https://library-backend-igey.onrender.com";
+  
+  const productionFallback = "https:;
   
   if (import.meta.env.PROD) {
     console.log("PRODUCTION MODE: VITE_API_URL =", envURL || "Using Failsafe Fallback");
   }
 
-  let url = envURL || (import.meta.env.PROD ? productionFallback : "http://localhost:4000");
+  let url = envURL || (import.meta.env.PROD ? productionFallback : "http:;
 
   if (!url.endsWith("/api/v1")) {
     url = url.endsWith("/") ? `${url}api/v1` : `${url}/api/v1`;

@@ -1,7 +1,7 @@
 import ErrorHandler from "./errorMiddleware.js";
 
 export const siteOriginMiddleware = (req, res, next) => {
-  const allowedOrigins = [process.env.FRONTEND_URL, "http://localhost:5173"];
+  const allowedOrigins = [process.env.FRONTEND_URL, "http:;
   const origin = req.headers.origin;
   const referer = req.headers.referer;
 

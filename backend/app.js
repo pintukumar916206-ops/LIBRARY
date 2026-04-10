@@ -19,10 +19,10 @@ import { FILE_UPLOAD } from "./constants/index.js";
 export const app = express();
 app.set("trust proxy", 1);
 
-// PRODUCTION-READY CORS CONFIGURATION
+
 app.use(
   cors({
-    origin: ["https://library-frontend-u4vq.onrender.com", "http://localhost:5173"],
+    origin: ["https:,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "X-XSRF-TOKEN", "Cookie"],
