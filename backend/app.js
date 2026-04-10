@@ -20,20 +20,21 @@ import { removeUnverifiedAccounts } from "./services/removeUnverifiedAccounts.js
 import { FILE_UPLOAD } from "./constants/index.js";
 import { siteOriginMiddleware } from "./middleware/siteOriginMiddleware.js";
 
-export const app = express();
+const app = express();
 app.set("trust proxy", 1);
-app.use(helmet());
-app.use("/api", apiLimiter);
+
+// ALWAYS CORS FIRST
 app.use(
   cors({
     origin: ["https://library-frontend-u4vq.onrender.com", "http://localhost:5173"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   }),
 );
-app.use((req, res, next) => {
-  next();
-});
+
+// app.use(helmet()); // Temporarily disabled for production connection stability
+// app.use("/api", apiLimiter); // Temporarily disabled
 app.use(siteOriginMiddleware);
 app.use(cookieParser());
 app.use(express.json({ limit: "100kb" }));
