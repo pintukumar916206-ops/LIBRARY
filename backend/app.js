@@ -23,18 +23,21 @@ import { siteOriginMiddleware } from "./middleware/siteOriginMiddleware.js";
 export const app = express();
 app.set("trust proxy", 1);
 
-// ALWAYS CORS FIRST
-app.use(
-  cors({
-    origin: ["https://library-frontend-u4vq.onrender.com", "http://localhost:5173"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  }),
-);
+// THE INFALLIBLE MANUAL CORS FIX
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://library-frontend-u4vq.onrender.com");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
+  res.header("Access-Control-Allow-Credentials", "true");
+  
+  // Handle Preflight (OPTIONS) instantly
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 // app.use(helmet()); // Temporarily disabled for production connection stability
-// app.use("/api", apiLimiter); // Temporarily disabled
 app.use(cookieParser());
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
