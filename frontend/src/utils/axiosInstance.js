@@ -4,13 +4,12 @@ const axiosInstance = axios.create();
 
 axiosInstance.interceptors.request.use((config) => {
   const envURL = import.meta.env.VITE_API_URL;
-  const productionFallback = "https://library-backend-igey.onrender.com";
   
-  if (import.meta.env.PROD) {
-    console.log("PRODUCTION MODE: VITE_API_URL =", envURL || "Using Failsafe Fallback");
+  if (import.meta.env.PROD && !envURL) {
+    console.warn("WARNING: VITE_API_URL is not set in production. Connection may fail.");
   }
 
-  let url = envURL || (import.meta.env.PROD ? productionFallback : "http://localhost:4000");
+  let url = envURL || "http://localhost:4000";
   
   if (!url.endsWith("/api/v1")) {
     url = url.endsWith("/") ? `${url}api/v1` : `${url}/api/v1`;
