@@ -26,7 +26,7 @@ app.use(helmet());
 app.use("/api", apiLimiter);
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
+    origin: ["https://library-frontend-u4vq.onrender.com", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
