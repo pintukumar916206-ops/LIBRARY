@@ -1,10 +1,19 @@
 import axios from "axios";
 
 const getBaseURL = () => {
-  let url = import.meta.env.VITE_API_URL || "http://localhost:4000";
+  const envURL = import.meta.env.VITE_API_URL;
+  
+  // Debug log to help identify the issue in production console
+  if (import.meta.env.PROD) {
+    console.log("PRODUCTION MODE: VITE_API_URL =", envURL);
+  }
+
+  let url = envURL || "http://localhost:4000";
+
   if (!url.endsWith("/api/v1")) {
     url = url.endsWith("/") ? `${url}api/v1` : `${url}/api/v1`;
   }
+  
   return url;
 };
 
