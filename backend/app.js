@@ -23,16 +23,27 @@ import { siteOriginMiddleware } from "./middleware/siteOriginMiddleware.js";
 export const app = express();
 app.set("trust proxy", 1);
 
-// THE INFALLIBLE MANUAL CORS FIX
+// THE INFALLIBLE MANUAL CORS FIX + LOGGING
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://library-frontend-u4vq.onrender.com");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, X-XSRF-TOKEN, Cookie");
-  res.header("Access-Control-Allow-Credentials", "true");
+  console.log(`INC: ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
   
-  // Handle Preflight (OPTIONS) instantly with a 204 (No Content)
+  const origin = req.headers.origin;
+  const allowedOrigins = ["https://library-frontend-u4vq.onrender.com", "http://localhost:5173"];
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    // Fallback for safety
+    res.setHeader("Access-Control-Allow-Origin", "https://library-frontend-u4vq.onrender.com");
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, X-XSRF-TOKEN, Cookie");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    console.log("OPTIONS Preflight Handled");
+    return res.status(204).send();
   }
   next();
 });
