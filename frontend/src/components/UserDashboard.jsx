@@ -57,6 +57,11 @@ const UserDashboard = () => {
   const { books: allBooks } = useSelector((state) => state.book);
 
   useEffect(() => {
+    dispatch(fetchAllBooks());
+    dispatch(fetchMyBorrowedBooks());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (borrowMessage) {
       toast.success(borrowMessage);
       dispatch(resetBorrowSlice());
