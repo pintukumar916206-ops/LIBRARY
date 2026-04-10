@@ -82,7 +82,6 @@ export const login = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = result.data;
 
   const user = await User.findOne({ email }).select("+password");
-  console.log("LOGIN ATTEMPT - User found:", user ? "YES" : "NO");
   
   if (!user) {
     return next(new ErrorHandler("Invalid email or password.", 401));
@@ -94,7 +93,6 @@ export const login = catchAsyncErrors(async (req, res, next) => {
 
   try {
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("LOGIN ATTEMPT - Password match:", isMatch);
     
     if (!isMatch) {
       return next(new ErrorHandler("Invalid email or password.", 401));
@@ -102,7 +100,6 @@ export const login = catchAsyncErrors(async (req, res, next) => {
     
     sendToken(user, 200, "Logged in successfully.", res);
   } catch (error) {
-    console.error("BCRYPT ERROR:", error);
     return next(new ErrorHandler("Authentication failed.", 500));
   }
 });

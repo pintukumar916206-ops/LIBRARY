@@ -19,9 +19,7 @@ const startServer = async () => {
     });
 
     process.on("unhandledRejection", (err) => {
-      console.error("================ UNHANDLED REJECTION ================");
       console.error(err);
-      console.error("=====================================================");
       server.close(() => process.exit(1));
     });
   } catch (error) {
