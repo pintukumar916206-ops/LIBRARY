@@ -32,7 +32,7 @@ const Login = () => {
 
   return (
     <div className="h-screen flex flex-col items-center justify-center md:flex-row">
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 relative overflow-hidden">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-9 relative overflow-hidden">
         <div className="max-w-sm w-full">
           <div className="flex justify-center mb-12">
             <img src={logo} alt="Logo" className="h-44 w-auto" />
